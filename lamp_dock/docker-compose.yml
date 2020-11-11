@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+
+  php:
+    build: ./php
+    volumes:
+      - /c/Users/Y.T/MyDocker/seasoning_shop/www:/var/www
+    ports:
+      - 8080:80
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:5.7 
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_general_ci --innodb-use-native-aio=0
+    volumes:
+      - /c/Users/Y.T/MyDocker/seasoning_shop/lamp_dock/db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root 
+      - MYSQL_DATABASE=sample 
+      - MYSQL_USER=testuser 
+      - MYSQL_PASSWORD=password
+      - "TZ=Asia/Tokyo"
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_HOST=mysql
+    depends_on:
+      - mysql
+    ports:
+      - 8888:80
