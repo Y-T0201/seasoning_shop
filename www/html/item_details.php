@@ -1,9 +1,9 @@
 <?php
-$host = 'localhost';
-$username = 'root';
-$password = 'nRlkY30ag';
-$dbname = 'ec_site';
-$charset = 'utf8';
+
+// 定義ファイルを読み込み
+require_once '../conf/const.php';
+
+include_once VIEW_PATH . 'item_details_view.php';
 
 $item_img_dir = '../item_img/'; // アップロードした画像ファイルの保存ディレクトリ
 $recipe_img_dir = '../recipe_img/'; // アップロードした画像ファイルの保存ディレクトリ
@@ -16,9 +16,11 @@ $item_name = '';
 $sum_price = 0;
 
 // MySQL用のDSN文字列
-$dsn = 'mysql:dbname='.$dbname.';host='.$host.';charset='.$charset;
+// $dsn = 'mysql:dbname='.$dbname.';host='.$host.';charset='.$charset;
 
 session_start();
+
+$db = get_db_connect();
 
 if (isset($_SESSION['user_id']) === TRUE) {
     $user_id = $_SESSION['user_id'];
@@ -344,7 +346,7 @@ try {
 }
 
 ?>
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang = "ja">
 <head>
     <meta charset = "utf-8">
@@ -711,4 +713,4 @@ try {
     </table>
    </main>
 </body>
-</html>
+</html> -->

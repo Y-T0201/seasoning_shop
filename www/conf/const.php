@@ -3,7 +3,7 @@
 // modelディレクトリに接続する
 define('MODEL_PATH', $_SERVER['DOCUMENT_ROOT'] . '/../model/');
 // viewディレクトリに接続する
-define('VIEW_PATH', $_SERVER['DOCUMENT_ROOT'] . '/../view');
+define('VIEW_PATH', $_SERVER['DOCUMENT_ROOT'] . '/../view/');
 
 // データベースの接続情報
 // MySQLのサーバー名
