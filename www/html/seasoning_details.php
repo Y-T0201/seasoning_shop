@@ -5,13 +5,14 @@ $password = 'root';
 $dbname = 'seasoning_shop';
 $charset = 'utf8';
 
-$img_dir = './item_img/'; // アップロードした画像ファイルの保存ディレクトリ
+$item_img_dir = './item_img/'; // アップロードした画像ファイルの保存ディレクトリ
+$recipe_img_dir = './recipe_img/'; // アップロードした画像ファイルの保存ディレクトリ
 $err_msg = array();
 $data = array();
 $sum = array();
+$r_recipe = array();
 $success = '';
 $item_name = '';
-$heart_item_id = '';
 $sum_price = 0;
 
 // MySQL用のDSN文字列
@@ -23,13 +24,13 @@ if (isset($_SESSION['user_id']) === TRUE) {
     $user_id = $_SESSION['user_id'];
 } else {
     // ログインしてないので、ログインページに飛ばす
-    header('Location: login.php');
+    header('Location: ../login.php');
     exit;
 }
 
 if (isset($_POST['btm_logout']) === true) {
     session_destroy();
-    header('Location: login.php');
+    header('Location: ../login.php');
     exit;
 }
 
@@ -138,10 +139,9 @@ try {
         }
         
         if (count($err_msg) === 0) {
-            $sql = 'SELECT stock, item_status, item_name 
+            $sql = 'SELECT item_status, item_name 
                     FROM ec_item_master
-                    JOIN ec_item_stock ON ec_item_master.item_id = ec_item_stock.item_id
-                    WHERE ec_item_master.item_id = ?';
+                    WHERE item_id = ?';
                     
             // SQL文を実行する準備
             $stmt = $dbh->prepare($sql);
@@ -199,12 +199,82 @@ try {
         }
     }
     
+    // 条件を振り分ける
+    if ($heart === 'recipe_heart') {
+        
+        if (isset($_POST['recipe_id']) === true) {
+            $recipe_id = $_POST['recipe_id']; 
+        }
+        
+        if (count($err_msg) === 0) {
+            $sql = 'SELECT recipe_status, recipe_name 
+                    FROM ec_recipe_master
+                    WHERE recipe_id = ?';
+                    
+            // SQL文を実行する準備
+            $stmt = $dbh->prepare($sql);
+            $stmt->bindvalue(1, $recipe_id,PDO::PARAM_INT);            
+            // SQLを実行
+            $stmt->execute();
+            // レコードの取得
+            $ck_item = $stmt->fetch();
+
+            // ステータスが非公開の処理
+            if ($ck_item['recipe_status'] === 0) {
+                $err_msg[] = $ck_item['recipe_name'] . 'はただいまお気に入り登録することができません';
+            }
+        
+            if (count($err_msg) === 0) {
+                $sql = 'SELECT * FROM ec_user_recipe
+                        WHERE user_id = ? AND recipe_id = ?';
+                        
+                // SQL文を実行する準備
+                $stmt = $dbh->prepare($sql);
+                $stmt->bindvalue(1, $user_id,PDO::PARAM_INT);
+                $stmt->bindvalue(2, $recipe_id,PDO::PARAM_INT);            
+                // SQLを実行
+                $stmt->execute();
+                $recipe = $stmt->fetch();
+                
+                if (isset($recipe['recipe_id']) === TRUE) {
+                    //--- 商品が見つかった（delete） ---
+                    $sql = 'DELETE
+                            FROM ec_user_recipe
+                            WHERE recipe_id = ?';
+                            
+                    $stmt = $dbh->prepare($sql);
+                    $stmt->bindValue(1,$recipe_id,PDO::PARAM_INT);
+                    // SQLを実行
+                    $stmt->execute();
+                    
+                    $success = $ck_item['recipe_name'] . 'をお気に入り登録から削除しました';
+                
+                } else {
+                    // SQL文作成
+                    $sql = 'INSERT INTO ec_user_recipe(user_id, recipe_id, create_datetime)
+                            VALUES(?, ?, NOW());';
+                            
+                    // SQL文を実行する準備
+                    $stmt = $dbh->prepare($sql);
+                    $stmt->bindvalue(1, $user_id, PDO::PARAM_INT);
+                    $stmt->bindvalue(2, $recipe_id, PDO::PARAM_INT);        
+                    // SQLを実行
+                    $stmt->execute();
+
+                    $success = $ck_item['recipe_name'] . 'をお気に入り登録しました';   
+                }
+            }
+        }
+    }
+    
+    // 商品番号を入力
     // アップロードを表示
     // SQL文を作成
     $sql = 'SELECT ec_item_master.item_id, item_name, price, item_img, item_status, item_comment, stock, user_item_id
             FROM ec_item_master
             JOIN ec_item_stock ON ec_item_master.item_id = ec_item_stock.item_id
-            LEFT JOIN ec_user_item ON ec_item_master.item_id = ec_user_item.item_id            
+            LEFT JOIN ec_user_item ON ec_item_master.item_id = ec_user_item.item_id         
+            WHERE ec_item_master.item_id = 14 
             ORDER BY ec_item_master.item_id DESC'; 
 
     // SQL文を実行する準備
@@ -218,6 +288,32 @@ try {
     
     foreach ($rows as $row) {
         $data[] = $row;
+    
+        foreach ($data as $value) {
+            $select_item_id = $value['item_id'];
+        }
+    }
+    
+    // アップロードを表示
+    // SQL文を作成
+    $sql = 'SELECT ec_recipe_master.recipe_id, recipe_name, recipe_img, recipe_status, recipe_comment, ec_recipe_master.item_id, item_name, user_recipe_id
+            FROM ec_recipe_master
+            JOIN ec_item_master ON ec_recipe_master.item_id = ec_item_master.item_id
+            LEFT JOIN ec_user_recipe ON ec_recipe_master.recipe_id = ec_user_recipe.recipe_id
+            WHERE ec_recipe_master.item_id = ?
+            ORDER BY ec_recipe_master.recipe_id DESC';
+            
+    // SQL文を実行する準備
+    $stmt = $dbh->prepare($sql);
+    $stmt->bindvalue(1, $select_item_id, PDO::PARAM_INT);
+    // SQLを実行
+    $stmt->execute();
+    // レコードの取得    
+    $rows = $stmt->fetchAll();
+     // 1行ずつ結果を配列で取得
+    // var_dump($rows);   
+    foreach ($rows as $row) {
+        $r_recipe[] = $row;
     }
     
     $sql = 'SELECT price, amount
@@ -252,16 +348,18 @@ try {
 <html lang = "ja">
 <head>
     <meta charset = "utf-8">
-    <title>調味料一覧</title>
+    <?php foreach ($data as $value) { ?>
+        <title><?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?></title>
+    <?php } ?>
     <style>
-    body, h2, h3, .success, .alert {
+    body, h2, h3,.item_table, .success, .alert, .item_flex {
         margin-left: auto;
         margin-right: auto;
     }
     
     body {
         width: 1250px;
-        background-image: url(wood_bg.jpg);
+        background-image: url(../wood_bg.jpg);
         background-size: 100%;
         background-repeat: no-repeat;
         background-attachment: fixed;
@@ -269,7 +367,32 @@ try {
     
     h2, h3, .success, .alert {
         width: 1026px;
-        
+    }
+   
+    .right {   
+        position: relative;
+        left: 930px;
+    }
+     
+    .item_flex, .item_table, .right {
+        width: 1000px;
+    }
+    
+    .item_table, .item_th, .item_td {
+        border-collapse: collapse;
+        border: solid 1px;
+    }
+    
+    .item_table {
+        margin-top: 30px;
+    }
+    
+    .item_th {
+        width: 200px;
+    }
+    
+    .item_td {
+        padding: 10px 5px;
     }
     
     .list {
@@ -292,11 +415,11 @@ try {
         color: #FFFFFF;
     }
     
-    .mg125 {
+    .mg100 {
         margin-left: 100px;
     }
     
-    .flex, .cart_flex, .flex_mypage, .flex_recipe, .top_flex {
+    .flex, .cart_flex, .flex_mypage, .flex_recipe, .top_flex, .item_flex, .heart_flex {
         display: flex;
     }
     
@@ -311,12 +434,16 @@ try {
         margin-bottom: -5px;
     }
     
-    .link_top, .success {
+    .link_top, .success, h2 {
         color: #463C21;
     }
     
-    .link_top, .success, .cart_price {
+    .link_top, .success, .cart_price, .price {
         font-size: 16px;
+    }
+    
+    .item_comment {
+        font-size: 20px;
     }
     
     .cart_price {
@@ -369,19 +496,20 @@ try {
     }
     
     .cart-submit, .sold_out {
-        margin-left: 360px;
+        width: 190px;
+        /*margin-left: 360px;*/
     }
     
     .sold_out {
-        width: 100px;
+        /*width: 190px;*/
         background-color: red;
         text-align: center;
         color: #FFFFFF;
-        margin-top: 3px;
-        margin-left: 370px;
+        margin-top: 0px;
+        /*margin-left: 370px;*/
     }
     
-    .link_top, .item_link {
+    .link_top, .item_link, .recipe_link {
         text-decoration: none;
         display: block;
     }
@@ -391,11 +519,16 @@ try {
         top: 13px;
     }
     
-   .item_link {
+    .item_link, .recipe_link {
         color: #000000;
     }
    
     .item_img {
+        max-width: 500px;
+        max-height: 350px;
+    }
+    
+    .recipe_img {
         max-height: 170px;
     }
     
@@ -405,7 +538,6 @@ try {
     
     .success {
         padding: 10px;
-        color: #463C21;
     }
     
     .alert {
@@ -414,12 +546,29 @@ try {
         padding-left: 10px;
     }
     
-    .mg10 {
+    .recipe_name {
+        margin: 5px;
+        position: relative;
+        right: 25px;
+    }
+    
+    .mg10, .item_comment {
         margin: 0px 10px;
     }
     
-    .heart {
+    .heart, .recipe_heart {
          width: 25px;
+    }
+    
+    .recipe_heart {
+        position: relative;
+        left: 470px;
+    }
+    
+    .heart_font {
+        color: #DF5656;
+        margin-top: 5px;
+        margin-left:5px;
     }
     
     </style>
@@ -427,16 +576,16 @@ try {
 <body>
     <header>
         <div class = "top_flex">
-            <a class = "link_top" href = "seasoning_list.php">
-                <img class = "icon" src="apron.png">はじめての調味料
+            <a class = "link_top" href = "../seasoning_list.php">
+                <img class = "icon" src="../apron.png">はじめての調味料
             </a>
             <div class = "flex_recipe">
-                <a class = "btm_recipe" href = "recipe_list.php">
-                    <img class = "img_recipe" src = "recipe.png">
+                <a class = "btm_recipe" href = "../recipe_list.php">
+                    <img class = "img_recipe" src = "../recipe.png">
                     レシピ
                 </a>    
             </div>
-            <form class = "btm_search" method = "get" action = "search_list.php">
+            <form class = "btm_search" method = "get" action = "../search_list.php">
                 <select size = "1" name = "keyword">
                     <!--<option value = "item, recipe">キーワード</option>-->
                     <option value = "all">キーワード</option>
@@ -447,18 +596,18 @@ try {
                 <input type = "submit" name = "search" value = "検索">
             </form>
             <div class = "flex_mypage">
-                <a class = "btm_mypage" href = "mypage.php">
-                    <img class = "img_mypage" src = "mypage.png">
+                <a class = "btm_mypage" href = "../mypage.php">
+                    <img class = "img_mypage" src = "../mypage.png">
                     MyPage
                 </a>    
             </div>
             <form method = "post">
-                <input class = "btm_logout" type = "image" src = "logout.png">
+                <input class = "btm_logout" type = "image" src = "../logout.png">
                 <input type = "hidden" name = "btm_logout" value = "btm_logout">
             </form>
             <div class = "cart_flex">
-                <a class = "cart_price"  href = "shopping_cart.php">
-                    <img class = "cart_img" src = "cart.png">
+                <a class = "cart_price"  href = "../shopping_cart.php">
+                    <img class = "cart_img" src = "../cart.png">
                     カートの中身&nbsp;&nbsp;<?php print htmlspecialchars(number_format($sum_price), ENT_QUOTES, 'utf-8'); ?>円
                 </a>
             </div>
@@ -470,43 +619,91 @@ try {
     <?php } ?>
     <p class = "success"><?php print $success; ?></p>
     <br>
-    <h2>調味料の新着一覧</h2>
-    <h3>調味料</h3>
-    <table class = "mg125">
-        <tr>
-        <?php foreach ($data as $value) { ?>
-            <?php if ($value['item_status'] === 1) { ?>
-                <td class = "list">
-                    <a class = "item_link" href = "seasoning_details.php">
-                        <div class = "flex">
-                            <img class = "item_img" src = "<?php print $img_dir . $value['item_img']; ?>">
-                            <p class = "mg10"><?php print htmlspecialchars ($value['item_comment'], ENT_QUOTES, 'utf-8'); ?></p>
-                        </div>
-                    </a>
-                    <div class = "flex">
-                        <p>調味料名:<?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
-                        <!--税率8%計算-->
-                        <p class = "mg50">小計<?php print htmlspecialchars (number_format(round($value['price'] * 1.08)), ENT_QUOTES, 'utf-8'); ?>円（税込み）</p>
-                    </div>
-                    <div class = "flex">
+    <?php foreach ($data as $value) { ?>
+        <?php if ($value['item_status'] === 1) { ?>
+            <h2><?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?></h2>
+            <div class = "item_flex">
+                <img class = "item_img" src = "<?php print $item_img_dir . $value['item_img']; ?>">
+                <p class = "item_comment"><?php print htmlspecialchars ($value['item_comment'], ENT_QUOTES, 'utf-8'); ?></p>
+            </div> 
+            <table class = "item_table">
+                <tr>
+                    <th class = "item_th">ブランド</th>
+                    <td class = "item_td">●●●</td>
+                </tr>
+                <tr>
+                    <th class = "item_th">メーカー</th>
+                    <td class = "item_td">▲▲▲</td>
+                </tr>            
+                 <tr>
+                    <th class = "item_th">原産国名</th>
+                    <td class = "item_td">日本</td>
+                </tr>
+                <tr>
+                    <th class = "item_th">原材料</th>
+                    <td class = "item_td">大豆油、干しえび、干し貝柱、唐辛子(塩漬け)、香辛料(ニンニク、唐辛子、山椒、白胡椒)、そら豆みそ、砂糖、酵母エキス、調味料(核酸)、(原料の一部にえび・小麦・大豆を含む)</td>
+                </tr>
+                <tr>
+                    <th class = "item_th">梱包サイズ</th>
+                    <td class = "item_td">12x7.1x7.1cm</td>
+                </tr>
+                <tr>
+                    <th class = "item_th">商品の重量</th>
+                    <td class = "item_td">550g</td>
+                </tr>
+            </table>
+            <div class = "right">
+                <!--税率8%計算-->
+                <p class = "price">小計<?php print htmlspecialchars (number_format(round($value['price'] * 1.08)), ENT_QUOTES, 'utf-8'); ?>円（税込み）</p>
+                <div class = "heart_flex">
                         <form method = "post">
                             <?php if ($value['user_item_id'] === null) { ?>                    
-                                <input type = "image" class = "heart" src = "heart_ck.png">
+                                <input type = "image" class = "heart" src = "../heart_ck.png">
                             <?php } else { ?>
-                                <input type = "image" class = "heart" src = "heart.png">
+                                <input type = "image" class = "heart" src = "../heart.png">
                             <?php } ?>
                             <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
                             <input type = "hidden" name = "heart" value = "item_heart">                    
-                        </form> 
-                        <?php if ($value['stock'] === 0) { ?>
-                            <P class = "sold_out">売り切れ</P>
-                        <?php } else if ($value['stock'] > 0) { ?>
-                            <form method = "post">
-                                <input class = "cart-submit" type = "submit" name = "cart_post" value = "カートに入れる">
-                                <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
-                            </form>                          
-                        <?php } ?>
+                        </form>  
+                    <p class = "heart_font">お気に入り</p>
+                </div>
+                <?php if ($value['stock'] === 0) { ?>
+                    <P class = "sold_out">売り切れ</P>
+                <?php } else if ($value['stock'] > 0) { ?>
+                    <form method = "post">
+                        <input class = "cart-submit" type = "submit" name = "cart_post" value = "カートに入れる">
+                        <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+                    </form>                          
+                <?php } ?>
+            </div>
+        </table>
+        <?php } ?>
+    <?php } ?>        
+    <h3>おすすめレシピ</h3>
+    <table class = "mg100">
+        <tr>
+        <?php foreach ($r_recipe as $r_value) { ?>
+            <?php if ($r_value['recipe_status'] === 1) { ?>
+                <td class = "list">
+                    <div class = "flex">
+                       <form method = "post">
+                            <?php if ($r_value['user_recipe_id'] === null) { ?>                    
+                                <input type = "image" class = "recipe_heart" src = "../heart_ck.png">
+                            <?php } else { ?>
+                                <input type = "image" class = "recipe_heart" src = "../heart.png">
+                            <?php } ?>
+                            <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($r_value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
+                            <input type = "hidden" name = "heart" value = "recipe_heart">                    
+                        </form>
+                        <p class = "recipe_name"><?php print htmlspecialchars ($r_value['recipe_name'], ENT_QUOTES, 'utf-8'); ?></p>
                     </div>
+                    <a class = "recipe_link" href = "../recipe/recipe_<?php print htmlspecialchars($r_value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>.php">
+                        <div class = "flex">
+                            <img class = "recipe_img" src = "<?php print $recipe_img_dir . $r_value['recipe_img']; ?>">
+                            <p class ="mg10"><?php print htmlspecialchars ($r_value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></p>
+                        </div>
+                    </a>
+                    <p class = "center">調味料名:<?php print htmlspecialchars ($r_value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
                 </td>
             <?php } ?>
         <?php } ?>
