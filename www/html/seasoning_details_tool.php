@@ -34,7 +34,6 @@ try {
     $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
     
-    
     $item_name = '';
     
     // 購入する商品の追加
@@ -431,22 +430,26 @@ try {
         }
     }
     
+    // 詳細を表示する商品のidを取得する
+    $item_details_id = '';
+    if (isset($_POST['item_id']) === true) {
+        $item_details_id = $_POST['item_id'];
+    }
+
     // アップロードを表示
     // SQL文を作成
     $sql = 'SELECT ec_item_master.item_id, item_name, price, item_img, item_status, item_comment, stock
             FROM ec_item_master
-            JOIN ec_item_stock ON ec_item_master.item_id = ec_item_stock.item_id';
+            JOIN ec_item_stock ON ec_item_master.item_id = ec_item_stock.item_id
+            WHERE ec_item_master.item_id = ?';
     // SQL文を実行する準備
     $stmt = $dbh->prepare($sql);
+    $stmt->bindValue(1,$item_details_id,PDO::PARAM_INT);
     // SQLを実行
     $stmt->execute();
     // レコードの取得
-    $rows = $stmt->fetchAll();
-    // 1行ずつ結果を配列で取得
-    foreach ($rows as $row) {
-        $data[] = $row;
-    }
-    
+    $item_details = $stmt->fetch();
+
 } catch (PDOExeption $e) {
     echo 'データベース処理でエラーが発生しました。 理由:'.$e->getMessage();
 }
@@ -536,24 +539,19 @@ try {
 <a class = "margin50" href = "users_tool.php">ユーザー管理ページ</a>
 <a class = "margin50" href = "history_tool.php">購入履歴管理ページ</a>
 <a class = "margin50" href = "seasoning_list.php">ECサイト</a>
-<h2>商品の登録</h2>
-<form method = "post" enctype = "multipart/form-data">
-    <p>商品名(12文字以内):<input type = "text" name = "item_name"></p>
-    <p>値段(税抜き):<input type = "text" name = "price"></p>
-    <p>個数:<input type = "text" name = "stock"></p>
-    <p>商品画像:<input type = "file" name = "item_img" ></p>
-    <!--<p>調味料の種類:-->
-    <!--<select size = "1" name = "status">-->
-    <!--    <option value = ""></option>-->
-    <!--</select>-->
-    <p>ステータス:
-        <select size = "1" name = "item_status">
-            <option value = "1">公開</option>
-            <option value = "0">非公開</option>
-        </select>
-    </p>
-    <p>詳細(98文字以内):</p>
-    <textarea name = "item_comment" row = "4" cols = "40"></textarea>
+<h2>商品詳細の登録</h2>
+<form method = "post">
+    <p>商品名:<?php print htmlspecialchars($item_details['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
+    <p>ブランド:<input type = "text" name = "brand"></p>
+    <p>メーカー:<input type = "text" name = "maker"></p>
+    <p>原産国名:<input type = "text" name = "country"></p>
+    <p>原材料(100文字以内):</p>
+    <textarea name = "material" row = "4" cols = "40"></textarea>
+    <p>梱包サイズ(cm):</p>
+    <p>幅:<input type = "text" name = "width"></p>
+    <p>奥行:<input type = "text" name = "depth"></p>
+    <p>高さ:<input type = "text" name = "height"></p>
+    <p>商品の重量(g):<input type = "text" name = "weight"></p>
     <div class = new_submit><input name = "new_post" type = "submit" value = "商品を登録する"></div>
 </form>
 <h2>商品情報の一覧・変更</h2>
@@ -569,92 +567,90 @@ try {
         <th>ステータス</th>
         <th>操作</th>
     </tr>
-    <?php foreach ($data as $value) { ?>
-        <!--非公開時の処理-->
-        <?php if ($value['item_status'] === 0) { ?>
-            <tr class = "gray">
-        <!--公開時の処理-->
-        <?php } else { ?>
-            <tr>
-        <?php } ?>
-            <td><?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?></td>
-            <!--画像を変更する-->
-            <td>
-                <img src = "<?php print $img_dir . $value['item_img']; ?>">
-                <form method = "post" enctype = "multipart/form-data">    
-                    <input type = "file" name = "update_item_img" ></p>
-                    <input name = "update_post" type = "submit" value = "変更する"> 
-                    <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
-                    <input type = "hidden" name = "process_kind" value = "update_item_img">
-                </form>        
-            </td>
-            <!--商品名を変更する-->
-            <form method = "post">
-            <td>
-                <input type = "text" name = "update_item_name" value = "<?php print htmlspecialchars($value['item_name'], ENT_QUOTES, 'utf-8'); ?>"><br>
-                <input name = "update_post" type = "submit" value = "変更する"> 
-                <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
-                <input type = "hidden" name = "process_kind" value = "update_item_name">
-            </td>
-            </form>
-            <!--価格を変更する-->
-            <form method = "post">
-            <td>
-                <input type = "text" class = "wd100" name = "update_price" value = "<?php print htmlspecialchars(number_format($value['price']), ENT_QUOTES, 'utf-8'); ?>">円
-                <input name = "update_post" type = "submit" value = "変更する"> 
-                <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
-                <input type = "hidden" name = "process_kind" value = "update_price">
-            </td>
-            </form>
-            <!--<td></td>-->
-            <!--商品の詳細を変更する-->
-            <form method = "post">
-            <td>
-                <textarea name = "update_item_comment" row = "4" cols = "40"><?php print htmlspecialchars($value['item_comment'], ENT_QUOTES, 'utf-8'); ?></textarea>
-                <input name = "update_post" type = "submit" value = "変更する"> 
-                <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
-                <input type = "hidden" name = "process_kind" value = "update_item_comment">
-            </td>
-            </form>
-            <!--在庫数を変更する-->
-            <form method = "post">
-            <td>
-                <input type = "text"  class = "wd100" name = "update_stock" value = "<?php print htmlspecialchars(number_format($value['stock']), ENT_QUOTES, 'utf-8'); ?>">個&nbsp;&nbsp;
-                <input name = "update_post" type = "submit" value = "変更する"> 
-                <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
-                <input type = "hidden" name = "process_kind" value = "update_stock">
-            </td>
-            </form>
-            <!--ステータスを変更する-->
-            <form method = "post">
-            <td>
-                <!--非公開時の処理-->
-                <?php if ($value['item_status'] === 0) { ?>
-                <input type = "submit" value = "非公開→公開にする">
-                <input type = "hidden" name = "change_item_status" value = "1">
-                <!--公開時の処理-->
-                <?php } else { ?>
-                <input type = "submit" value = "公開→非公開にする">            
-                <input type = "hidden" name = "change_item_status" value = "0">
-                <?php } ?>
-                <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
-                <input type = "hidden" name = "process_kind" value = "change_item_status">
-            </td>
-            </form>
-            <td>
-            <form action = "seasoning_details_tool.php" method = "post">
-                <input type = "submit" value = "編集する">
-                <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
-                <input type = "hidden" name = "process_kind" value = "item_details">
-            </form>
-            <form class = "delete_form" method = "post">
-                <input class = "delete_btm" type = "submit" value = "削除する">
-                <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
-                <input type = "hidden" name = "process_kind" value = "item_delete">
-            </form>
-            </td>
-        </tr>
+    <!--非公開時の処理-->
+    <?php if ($item_details['item_status'] === 0) { ?>
+        <tr class = "gray">
+    <!--公開時の処理-->
+    <?php } else { ?>
+        <tr>
     <?php } ?>
+        <td><?php print htmlspecialchars($item_details['item_id'], ENT_QUOTES, 'utf-8'); ?></td>
+        <!--画像を変更する-->
+        <td>
+            <img src = "<?php print $img_dir . $item_details['item_img']; ?>">
+            <form method = "post" enctype = "multipart/form-data">    
+                <input type = "file" name = "update_item_img" ></p>
+                <input name = "update_post" type = "submit" value = "変更する"> 
+                <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($item_details['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+                <input type = "hidden" name = "process_kind" value = "update_item_img">
+            </form>        
+        </td>
+        <!--商品名を変更する-->
+        <form method = "post">
+        <td>
+            <input type = "text" name = "update_item_name" value = "<?php print htmlspecialchars($item_details['item_name'], ENT_QUOTES, 'utf-8'); ?>"><br>
+            <input name = "update_post" type = "submit" value = "変更する"> 
+            <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($item_details['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+            <input type = "hidden" name = "process_kind" value = "update_item_name">
+        </td>
+        </form>
+        <!--価格を変更する-->
+        <form method = "post">
+        <td>
+            <input type = "text" class = "wd100" name = "update_price" value = "<?php print htmlspecialchars(number_format($item_details['price']), ENT_QUOTES, 'utf-8'); ?>">円
+            <input name = "update_post" type = "submit" value = "変更する"> 
+            <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($item_details['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+            <input type = "hidden" name = "process_kind" value = "update_price">
+        </td>
+        </form>
+        <!--<td></td>-->
+        <!--商品の詳細を変更する-->
+        <form method = "post">
+        <td>
+            <textarea name = "update_item_comment" row = "4" cols = "40"><?php print htmlspecialchars($item_details['item_comment'], ENT_QUOTES, 'utf-8'); ?></textarea>
+            <input name = "update_post" type = "submit" value = "変更する"> 
+            <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($item_details['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+            <input type = "hidden" name = "process_kind" value = "update_item_comment">
+        </td>
+        </form>
+        <!--在庫数を変更する-->
+        <form method = "post">
+        <td>
+            <input type = "text"  class = "wd100" name = "update_stock" value = "<?php print htmlspecialchars(number_format($item_details['stock']), ENT_QUOTES, 'utf-8'); ?>">個&nbsp;&nbsp;
+            <input name = "update_post" type = "submit" value = "変更する"> 
+            <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($item_details['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+            <input type = "hidden" name = "process_kind" value = "update_stock">
+        </td>
+        </form>
+        <!--ステータスを変更する-->
+        <form method = "post">
+        <td>
+            <!--非公開時の処理-->
+            <?php if ($item_details['item_status'] === 0) { ?>
+            <input type = "submit" value = "非公開→公開にする">
+            <input type = "hidden" name = "change_item_status" value = "1">
+            <!--公開時の処理-->
+            <?php } else { ?>
+            <input type = "submit" value = "公開→非公開にする">            
+            <input type = "hidden" name = "change_item_status" value = "0">
+            <?php } ?>
+            <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($item_details['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+            <input type = "hidden" name = "process_kind" value = "change_item_status">
+        </td>
+        </form>
+        <td>
+        <form action = "seasoning_details_tool.php" method = "post">
+            <input type = "submit" value = "編集する">
+            <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($item_details['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+            <input type = "hidden" name = "process_kind" value = "item_details">
+        </form>
+        <form class = "delete_form" method = "post">
+            <input class = "delete_btm" type = "submit" value = "削除する">
+            <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($item_details['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+            <input type = "hidden" name = "process_kind" value = "item_delete">
+        </form>
+        </td>
+    </tr>
 </table>
 </body>
 </html>
