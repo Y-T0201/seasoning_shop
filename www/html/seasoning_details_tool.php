@@ -28,139 +28,138 @@ if (isset($_POST['btm_logout']) === true) {
     exit;
 }
 
+// 詳細を表示する商品のidを取得する
+$item_id = '';
+if (isset($_GET['item_id']) === true) {
+    $item_id = $_GET['item_id'];
+}
+
 try {
     // データベースに接続
     $dbh = new PDO($dsn, $username, $password, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8mb4'));
     $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-    
-    $item_name = '';
-    
-    // 購入する商品の追加
+      
+    // 商品詳細の追加
     if (isset($_POST['new_post']) === true) {
-        if (isset($_POST['item_name']) === true) {
-            $item_name = $_POST['item_name'];
-            $item_name = str_replace(array(" "," "),"",$item_name);
+        // ブランド名
+        $brand = '';
+        if (isset($_POST['brand']) === true) {
+            $brand = $_POST['brand'];
+            $brand = str_replace(array(" "," "),"",$brand);
         }
         
-        if (mb_strlen($item_name) === 0) {
-            $err_msg[] = '商品名を入力してください';
-        } else if (mb_strlen($item_name) > 12) {
-            $err_msg[] = '商品名は12文字以内で入力してください';
+        if (mb_strlen($brand) === 0) {
+            $err_msg[] = 'ブランド名を入力してください';
         }
         
-        $price = '';
-        
-        if (isset($_POST['price']) === true) {
-            $price = $_POST['price'];
-            $price = str_replace(array(" "," "),"",$price);
+        // メーカー名
+        $maker = '';
+        if (isset($_POST['maker']) === true) {
+            $maker = $_POST['maker'];
+            $maker = str_replace(array(" "," "),"",$maker);
         }
         
-        if (preg_match('/^[0-9]+$/', $price) !== 1) {
-            $err_msg[] = '値段は0以上の整数を入力してください';
+        if (mb_strlen($maker) === 0) {
+            $err_msg[] = 'メーカー名を入力してください';
+        }
+
+        // 原産国名
+        $country = '';
+        if (isset($_POST['country']) === true) {
+            $country = $_POST['maker'];
+            $country = str_replace(array(" "," "),"",$country);
         }
         
-        $stock = '';
-        
-        if (isset($_POST['stock']) === true) {
-            $stock = $_POST['stock'];
-            $stock = str_replace(array(" "," "),"",$stock);
+        if (mb_strlen($country) === 0) {
+            $err_msg[] = '原産国名を入力してください';
+        }
+
+        // 原材料
+        $material = '';
+        if (isset($_POST['material']) === true) {
+            $material = $_POST['material'];
+            $material = str_replace(array(" "," "),"",$material);
         }
         
-        if (preg_match('/^[0-9]+$/', $stock) !== 1) {
-            $err_msg[] = '在庫数は0以上の整数を入力してください';
+        if (mb_strlen($material) === 0) {
+            $err_msg[] = '原材料を入力してください';
+        }
+
+        // 梱包サイズ
+        // 幅
+        $width = '';
+        
+        if (isset($_POST['width']) === true) {
+            $width = $_POST['width'];
+            $width = str_replace(array(" "," "),"",$width);
         }
         
-        $item_img = '';
-        
-        // HTTP POST でファイルがアップロードされたかどうかチェック
-        if (is_uploaded_file($_FILES['item_img']['tmp_name']) === true) {
-            // 画像の拡張子を取得
-            $extension = pathinfo($_FILES['item_img']['name'], PATHINFO_EXTENSION);
-            // 指定の拡張子であるかどうかチェック
-            if ($extension === 'jpg' || $extension === 'jpeg' || $extension === 'png') {
-                // 保存する新しいファイル名の生成(ユニークな値を設定する)
-                $item_img = sha1(uniqid(mt_rand(), true)). '.' . $extension;
-                // 同名ファイルが存在しているかチェック
-                if (is_file($img_dir . $item_img) !== true) {
-                    // アップロードされたファイルを指定ディレクトリに移動して保存
-                    if (move_uploaded_file($_FILES['item_img']['tmp_name'], $img_dir . $item_img) !== true) {
-                        $err_msg[] = 'ファイルアップロードに失敗しました';
-                    }
-                } else {
-                    $err_msg[] = 'ファイルアップロードに失敗しました。再度お試しください。';
-                }
-            } else {
-                $err_msg[] = 'ファイル形式が異なります。画像ファイルはJPEG、またはPNGのみ利用可能です。';
-            }
-        } else {
-            $err_msg[] = 'ファイルを選択してください';
+        if (preg_match('/^[0-9]+.[0-9]+$/', $width) !== 1) {
+            $err_msg[] = '梱包サイズの幅は0以上の整数を入力してください';
         }
         
-        $item_status = '';
+        // 奥行
+        $depth = '';
         
-        if (isset($_POST['item_status']) === true) {
-            $item_status = $_POST['item_status'];
-        }    
-        
-        if ($item_status !== '0' && $item_status !== '1') {
-            $err_msg[] = 'ステータスエラー';
+        if (isset($_POST['depth']) === true) {
+            $depth = $_POST['depth'];
+            $depth = str_replace(array(" "," "),"",$depth);
         }
         
-        $item_comment = '';
-        
-        if (isset($_POST['item_comment']) === true) {
-            $item_comment = $_POST['item_comment'];
-            $item_comment = str_replace(array(" "," "),"",$item_comment);
+        if (preg_match('/^[0-9]+.[0-9]+$/', $depth) !== 1) {
+            $err_msg[] = '梱包サイズの奥行は0以上の整数を入力してください';
+        }
+
+        // 高さ
+        $height = '';
+
+        if (isset($_POST['height']) === true) {
+            $height = $_POST['height'];
+            $height = str_replace(array(" "," "),"",$height);
         }
         
-        if (mb_strlen($item_comment) === 0) {
-            $err_msg[] = '商品の詳細を入力してください';
-        } else if (mb_strlen($item_comment) > 98) {
-            $err_msg[] = '詳細は98文字以内で入力してください';
-        } 
-         
+        if (preg_match('/^[0-9]+.[0-9]+$/', $height) !== 1) {
+            $err_msg[] = '梱包サイズの高さは0以上の整数を入力してください';
+        }
+        
+        // 重さ
+        $weight = '';
+
+        if (isset($_POST['weight']) === true) {
+            $weight = $_POST['weight'];
+            $weight = str_replace(array(" "," "),"",$weight);
+        }
+        
+        if (preg_match('/^[0-9]+.[0-9]+$/', $weight) !== 1) {
+            $err_msg[] = '梱包サイズの高さは0以上の整数を入力してください';
+        }        
+        
+        // 既に登録されている場合はエラー表示をする
+        
+
         if (count($err_msg) === 0) {
-            // トランザクション開始
-            $dbh->beginTransaction();
-            try {
-                // 商品情報テーブルにデータ作成
-                $sql = 'insert into ec_item_master(item_name, price, item_img, item_status, item_comment, create_datetime)
-                        VALUES(?, ?, ?, ?, ?, NOW());';
-                        
-                // SQL文を実行する準備
-                $stmt = $dbh->prepare($sql);
-                $stmt->bindvalue(1, $item_name, PDO::PARAM_STR);
-                $stmt->bindvalue(2, $price, PDO::PARAM_INT);
-                $stmt->bindvalue(3, $item_img, PDO::PARAM_STR);
-                $stmt->bindvalue(4, $item_status, PDO::PARAM_INT);
-                $stmt->bindvalue(5, $item_comment, PDO::PARAM_STR);
-                // SQLを実行
-                $stmt->execute();
-                // 登録したデータにIDを取得して出力
-                $id = $dbh->lastInsertId();
-                
-                // 在庫数情報テーブルにデータを作成
-                $sql = 'insert into ec_item_stock(item_id, stock, create_datetime, update_datetime)
-                        VALUES(?, ?, NOW(), NOW());';
-                
-                // SQL文を実行する準備
-                $stmt = $dbh->prepare($sql);
-                $stmt->bindvalue(1, $id, PDO::PARAM_INT);
-                $stmt->bindvalue(2, $stock, PDO::PARAM_INT);        
-                // SQLを実行
-                $stmt->execute();
-                // コミット処理
-                $dbh->commit();
-                echo 'データが登録できました';
-               
-            } catch (PDOExeption $e) {
-                // ロールバック処理
-                $dbh->rollback();
-                // 例外をスロー
-                throw $e;
-            }
-        }
+
+            // 商品情報テーブルにデータ作成
+            $sql = 'insert into ec_item_details(item_id, brand, maker, country, material, width, depth, height, weight)
+                    VALUES(?, ?, ?, ?, ?, ?, ?, ? ,?);';
+                    
+            // SQL文を実行する準備
+            $stmt = $dbh->prepare($sql);
+            $stmt->bindvalue(1, $item_id, PDO::PARAM_INT);
+            $stmt->bindvalue(2, $brand, PDO::PARAM_STR);
+            $stmt->bindvalue(3, $maker, PDO::PARAM_STR);
+            $stmt->bindvalue(4, $country, PDO::PARAM_STR);
+            $stmt->bindvalue(5, $material, PDO::PARAM_STR);
+            $stmt->bindvalue(6, $width, PDO::PARAM_INT);
+            $stmt->bindvalue(7, $depth, PDO::PARAM_INT);
+            $stmt->bindvalue(8, $height, PDO::PARAM_INT);
+            $stmt->bindvalue(9, $weight, PDO::PARAM_INT);                
+            // SQLを実行
+            $stmt->execute();
+
+            echo 'データが登録できました';
+        } 
     }
     
     $process_kind = '';
@@ -430,21 +429,17 @@ try {
         }
     }
     
-    // 詳細を表示する商品のidを取得する
-    $item_details_id = '';
-    if (isset($_POST['item_id']) === true) {
-        $item_details_id = $_POST['item_id'];
-    }
-
     // アップロードを表示
     // SQL文を作成
-    $sql = 'SELECT ec_item_master.item_id, item_name, price, item_img, item_status, item_comment, stock
+    $sql = 'SELECT ec_item_master.item_id, item_name, price, item_img, item_status, item_comment, stock,
+            brand, maker, country, material, width, depth, height, weight
             FROM ec_item_master
             JOIN ec_item_stock ON ec_item_master.item_id = ec_item_stock.item_id
+            JOIN LEFT ec_item_details ON ec_item_master.item_id = ec_item_details.item_id
             WHERE ec_item_master.item_id = ?';
     // SQL文を実行する準備
     $stmt = $dbh->prepare($sql);
-    $stmt->bindValue(1,$item_details_id,PDO::PARAM_INT);
+    $stmt->bindValue(1,$item_id,PDO::PARAM_INT);
     // SQLを実行
     $stmt->execute();
     // レコードの取得
@@ -535,6 +530,7 @@ try {
 <?php foreach ($err_msg as $value) { ?>
     <p><?php print $value; ?></p>
 <?php } ?>
+<a class = "margin50" href = "seasoning_tool.php">調味料管理ページ</a>
 <a class = "margin50" href = "recipe_tool.php">レシピ管理ページ</a>
 <a class = "margin50" href = "users_tool.php">ユーザー管理ページ</a>
 <a class = "margin50" href = "history_tool.php">購入履歴管理ページ</a>
@@ -639,17 +635,85 @@ try {
         </td>
         </form>
         <td>
-        <form action = "seasoning_details_tool.php" method = "post">
-            <input type = "submit" value = "編集する">
-            <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($item_details['item_id'], ENT_QUOTES, 'utf-8'); ?>">
-            <input type = "hidden" name = "process_kind" value = "item_details">
-        </form>
         <form class = "delete_form" method = "post">
             <input class = "delete_btm" type = "submit" value = "削除する">
             <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($item_details['item_id'], ENT_QUOTES, 'utf-8'); ?>">
             <input type = "hidden" name = "process_kind" value = "item_delete">
         </form>
         </td>
+    </tr>
+</table><br>
+<table>
+    <tr>
+        <th>ブランド</th>
+        <th>メーカー</th>
+        <th>原産国名</th>
+        <th>原材料</th>
+        <th>梱包サイズ</th>
+        <th>商品の重量</th>
+    </tr>
+    <!--非公開時の処理-->
+    <?php if ($item_details['item_status'] === 0) { ?>
+        <tr class = "gray">
+    <!--公開時の処理-->
+    <?php } else { ?>
+        <tr>
+    <?php } ?>
+         <!--ブランド名を変更する-->
+         <form method = "post">
+        <td>
+            <input type = "text" name = "update_maker" value = "<?php print htmlspecialchars($item_details['brand'], ENT_QUOTES, 'utf-8'); ?>"><br>
+            <input name = "update_post" type = "submit" value = "変更する"> 
+            <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($item_details['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+            <input type = "hidden" name = "process_kind" value = "update_brand">
+        </td>   
+        <!--メーカー名を変更する-->
+        <form method = "post">
+        <td>
+            <input type = "text" name = "update_maker" value = "<?php print htmlspecialchars($item_details['maker'], ENT_QUOTES, 'utf-8'); ?>"><br>
+            <input name = "update_post" type = "submit" value = "変更する"> 
+            <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($item_details['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+            <input type = "hidden" name = "process_kind" value = "update_maker">
+        </td>
+        </form>
+        <!--原産国名を変更する-->
+        <form method = "post">
+        <td>
+            <input type = "text" name = "update_country" value = "<?php print htmlspecialchars($item_details['country'], ENT_QUOTES, 'utf-8'); ?>">
+            <input name = "update_post" type = "submit" value = "変更する"> 
+            <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($item_details['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+            <input type = "hidden" name = "process_kind" value = "update_country">
+        </td>
+        </form>
+        <!--原材料を変更する-->
+        <form method = "post">
+        <td>
+            <textarea name = "update_material" row = "4" cols = "40"><?php print htmlspecialchars($item_details['material'], ENT_QUOTES, 'utf-8'); ?></textarea>
+            <input name = "update_post" type = "submit" value = "変更する"> 
+            <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($item_details['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+            <input type = "hidden" name = "process_kind" value = "update_material">
+        </td>
+        </form>
+        <!--梱包サイズを変更する-->
+        <form method = "post">
+        <td>
+            幅:<input class = "wd100" type = "text" name = "update_width" value = "<?php print htmlspecialchars(number_format($item_details['width']), ENT_QUOTES, 'utf-8'); ?>"><br>
+            奥行:<input class = "wd100" type = "text" name = "update_depth" value = "<?php print htmlspecialchars(number_format($item_details['depth']), ENT_QUOTES, 'utf-8'); ?>"><br>
+            高さ:<input class = "wd100" type = "text" name = "update_height" value = "<?php print htmlspecialchars(number_format($item_details['height']), ENT_QUOTES, 'utf-8'); ?>">cm
+            <input name = "update_post" type = "submit" value = "変更する"> 
+            <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($item_details['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+            <input type = "hidden" name = "process_kind" value = "update_size">
+        </td>
+        </form>
+        <!--重量を変更する-->
+        <form method = "post">
+        <td>
+            <input type = "text" name = "update_weight" value = "<?php print htmlspecialchars(number_format($item_details['weight']), ENT_QUOTES, 'utf-8'); ?>">g
+            <input name = "update_post" type = "submit" value = "変更する"> 
+            <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($item_details['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+            <input type = "hidden" name = "process_kind" value = "update_weight">
+        </td>
+        </form>
     </tr>
 </table>
 </body>
