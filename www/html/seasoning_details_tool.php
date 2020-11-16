@@ -95,8 +95,9 @@ try {
             $width = str_replace(array(" "," "),"",$width);
         }
         
-        if (preg_match('/^[0-9]+.[0-9]+$/', $width) !== 1) {
-            $err_msg[] = '梱包サイズの幅は0以上の整数を入力してください';
+        if (preg_match('/^[0-9]+.?[0-9]*$/', $width) !== 1) {
+        // if (preg_match('/^[0-9]+$/', $width) !== 1) {
+            $err_msg[] = '梱包サイズの幅は整数を入力してください';
         }
         
         // 奥行
@@ -107,8 +108,8 @@ try {
             $depth = str_replace(array(" "," "),"",$depth);
         }
         
-        if (preg_match('/^[0-9]+.[0-9]+$/', $depth) !== 1) {
-            $err_msg[] = '梱包サイズの奥行は0以上の整数を入力してください';
+        if (preg_match('/^[0-9]+$/', $depth) !== 1) {
+            $err_msg[] = '梱包サイズの奥行は整数を入力してください';
         }
 
         // 高さ
@@ -119,8 +120,8 @@ try {
             $height = str_replace(array(" "," "),"",$height);
         }
         
-        if (preg_match('/^[0-9]+.[0-9]+$/', $height) !== 1) {
-            $err_msg[] = '梱包サイズの高さは0以上の整数を入力してください';
+        if (preg_match('/^[0-9]$/', $height) !== 1) {
+            $err_msg[] = '梱包サイズの高さは整数を入力してください';
         }
         
         // 重さ
@@ -131,8 +132,8 @@ try {
             $weight = str_replace(array(" "," "),"",$weight);
         }
         
-        if (preg_match('/^[0-9]+.[0-9]+$/', $weight) !== 1) {
-            $err_msg[] = '梱包サイズの高さは0以上の整数を入力してください';
+        if (preg_match('/^[0-9]+$/', $weight) !== 1) {
+            $err_msg[] = '商品の重量は0以上の整数を入力してください';
         }        
         
         // 既に登録されている場合はエラー表示をする
@@ -435,7 +436,7 @@ try {
             brand, maker, country, material, width, depth, height, weight
             FROM ec_item_master
             JOIN ec_item_stock ON ec_item_master.item_id = ec_item_stock.item_id
-            JOIN LEFT ec_item_details ON ec_item_master.item_id = ec_item_details.item_id
+            LEFT JOIN ec_item_details ON ec_item_master.item_id = ec_item_details.item_id
             WHERE ec_item_master.item_id = ?';
     // SQL文を実行する準備
     $stmt = $dbh->prepare($sql);

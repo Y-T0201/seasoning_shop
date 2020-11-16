@@ -34,6 +34,11 @@ if (isset($_POST['btm_logout']) === true) {
     exit;
 }
 
+$item_details_id = '';
+if (isset($_GET['item_id']) === true) {
+    $item_details_id = $_GET['item_id'];
+}
+
 try {
     // データベースに接続
     $dbh = new PDO($dsn, $username, $password, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8mb4'));
@@ -274,11 +279,12 @@ try {
             FROM ec_item_master
             JOIN ec_item_stock ON ec_item_master.item_id = ec_item_stock.item_id
             LEFT JOIN ec_user_item ON ec_item_master.item_id = ec_user_item.item_id         
-            WHERE ec_item_master.item_id = 14 
+            WHERE ec_item_master.item_id = ?
             ORDER BY ec_item_master.item_id DESC'; 
 
     // SQL文を実行する準備
     $stmt = $dbh->prepare($sql);
+    $stmt->bindValue(1,$item_details_id,PDO::PARAM_INT);
     // SQLを実行
     $stmt->execute();
     // レコードの取得
@@ -311,10 +317,21 @@ try {
     // レコードの取得    
     $rows = $stmt->fetchAll();
      // 1行ずつ結果を配列で取得
-    // var_dump($rows);   
     foreach ($rows as $row) {
         $r_recipe[] = $row;
     }
+    
+    // 商品詳細
+    $sql = 'SELECT brand, maker, country, material, width, depth, height, weight
+            FROM ec_item_details
+            WHERE item_id = ?';
+    // SQL文を実行する準備
+    $stmt = $dbh->prepare($sql);
+    $stmt->bindValue(1,$item_details_id,PDO::PARAM_INT);
+    // SQLを実行
+    $stmt->execute();
+    // レコードの取得
+    $item_details = $stmt->fetch();
     
     $sql = 'SELECT price, amount
             FROM ec_item_master
@@ -359,7 +376,7 @@ try {
     
     body {
         width: 1250px;
-        background-image: url(../wood_bg.jpg);
+        background-image: url(./wood_bg.jpg);
         background-size: 100%;
         background-repeat: no-repeat;
         background-attachment: fixed;
@@ -576,16 +593,16 @@ try {
 <body>
     <header>
         <div class = "top_flex">
-            <a class = "link_top" href = "../seasoning_list.php">
-                <img class = "icon" src="../apron.png">はじめての調味料
+            <a class = "link_top" href = "./seasoning_list.php">
+                <img class = "icon" src="./apron.png">はじめての調味料
             </a>
             <div class = "flex_recipe">
-                <a class = "btm_recipe" href = "../recipe_list.php">
-                    <img class = "img_recipe" src = "../recipe.png">
+                <a class = "btm_recipe" href = "./recipe_list.php">
+                    <img class = "img_recipe" src = "./recipe.png">
                     レシピ
                 </a>    
             </div>
-            <form class = "btm_search" method = "get" action = "../search_list.php">
+            <form class = "btm_search" method = "get" action = "./search_list.php">
                 <select size = "1" name = "keyword">
                     <!--<option value = "item, recipe">キーワード</option>-->
                     <option value = "all">キーワード</option>
@@ -596,18 +613,18 @@ try {
                 <input type = "submit" name = "search" value = "検索">
             </form>
             <div class = "flex_mypage">
-                <a class = "btm_mypage" href = "../mypage.php">
-                    <img class = "img_mypage" src = "../mypage.png">
+                <a class = "btm_mypage" href = "./mypage.php">
+                    <img class = "img_mypage" src = "./mypage.png">
                     MyPage
                 </a>    
             </div>
             <form method = "post">
-                <input class = "btm_logout" type = "image" src = "../logout.png">
+                <input class = "btm_logout" type = "image" src = "./logout.png">
                 <input type = "hidden" name = "btm_logout" value = "btm_logout">
             </form>
             <div class = "cart_flex">
-                <a class = "cart_price"  href = "../shopping_cart.php">
-                    <img class = "cart_img" src = "../cart.png">
+                <a class = "cart_price"  href = "./shopping_cart.php">
+                    <img class = "cart_img" src = "./cart.png">
                     カートの中身&nbsp;&nbsp;<?php print htmlspecialchars(number_format($sum_price), ENT_QUOTES, 'utf-8'); ?>円
                 </a>
             </div>
@@ -629,27 +646,29 @@ try {
             <table class = "item_table">
                 <tr>
                     <th class = "item_th">ブランド</th>
-                    <td class = "item_td">●●●</td>
+                    <td class = "item_td"><?php print htmlspecialchars ($item_details['brand'], ENT_QUOTES, 'utf-8'); ?></td>
                 </tr>
                 <tr>
                     <th class = "item_th">メーカー</th>
-                    <td class = "item_td">▲▲▲</td>
+                    <td class = "item_td"><?php print htmlspecialchars ($item_details['maker'], ENT_QUOTES, 'utf-8'); ?></td>
                 </tr>            
                  <tr>
                     <th class = "item_th">原産国名</th>
-                    <td class = "item_td">日本</td>
+                    <td class = "item_td"><?php print htmlspecialchars ($item_details['country'], ENT_QUOTES, 'utf-8'); ?></td>
                 </tr>
                 <tr>
                     <th class = "item_th">原材料</th>
-                    <td class = "item_td">大豆油、干しえび、干し貝柱、唐辛子(塩漬け)、香辛料(ニンニク、唐辛子、山椒、白胡椒)、そら豆みそ、砂糖、酵母エキス、調味料(核酸)、(原料の一部にえび・小麦・大豆を含む)</td>
+                    <td class = "item_td"><?php print htmlspecialchars ($item_details['material'], ENT_QUOTES, 'utf-8'); ?></td>
                 </tr>
                 <tr>
                     <th class = "item_th">梱包サイズ</th>
-                    <td class = "item_td">12x7.1x7.1cm</td>
+                    <td class = "item_td"><?php print htmlspecialchars ($item_details['width'], ENT_QUOTES, 'utf-8'); ?>x
+                        <?php print htmlspecialchars ($item_details['depth'], ENT_QUOTES, 'utf-8'); ?>x
+                        <?php print htmlspecialchars ($item_details['height'], ENT_QUOTES, 'utf-8'); ?>cm</td>
                 </tr>
                 <tr>
                     <th class = "item_th">商品の重量</th>
-                    <td class = "item_td">550g</td>
+                    <td class = "item_td"><?php print htmlspecialchars ($item_details['weight'], ENT_QUOTES, 'utf-8'); ?>g</td>
                 </tr>
             </table>
             <div class = "right">
@@ -658,9 +677,9 @@ try {
                 <div class = "heart_flex">
                         <form method = "post">
                             <?php if ($value['user_item_id'] === null) { ?>                    
-                                <input type = "image" class = "heart" src = "../heart_ck.png">
+                                <input type = "image" class = "heart" src = "./heart_ck.png">
                             <?php } else { ?>
-                                <input type = "image" class = "heart" src = "../heart.png">
+                                <input type = "image" class = "heart" src = "./heart.png">
                             <?php } ?>
                             <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
                             <input type = "hidden" name = "heart" value = "item_heart">                    
@@ -688,16 +707,16 @@ try {
                     <div class = "flex">
                        <form method = "post">
                             <?php if ($r_value['user_recipe_id'] === null) { ?>                    
-                                <input type = "image" class = "recipe_heart" src = "../heart_ck.png">
+                                <input type = "image" class = "recipe_heart" src = "./heart_ck.png">
                             <?php } else { ?>
-                                <input type = "image" class = "recipe_heart" src = "../heart.png">
+                                <input type = "image" class = "recipe_heart" src = "./heart.png">
                             <?php } ?>
                             <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($r_value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
                             <input type = "hidden" name = "heart" value = "recipe_heart">                    
                         </form>
                         <p class = "recipe_name"><?php print htmlspecialchars ($r_value['recipe_name'], ENT_QUOTES, 'utf-8'); ?></p>
                     </div>
-                    <a class = "recipe_link" href = "../recipe/recipe_<?php print htmlspecialchars($r_value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>.php">
+                    <a class = "recipe_link" href = "./recipe/recipe_<?php print htmlspecialchars($r_value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>.php">
                         <div class = "flex">
                             <img class = "recipe_img" src = "<?php print $recipe_img_dir . $r_value['recipe_img']; ?>">
                             <p class ="mg10"><?php print htmlspecialchars ($r_value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></p>

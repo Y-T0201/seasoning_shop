@@ -645,7 +645,6 @@ try {
             <form action = "seasoning_details_tool.php" method = "get">
                 <input type = "submit" value = "編集する">
                 <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
-                <input type = "hidden" name = "process_kind" value = "item_details">
             </form>
             <form class = "delete_form" method = "post">
                 <input class = "delete_btm" type = "submit" value = "削除する">
