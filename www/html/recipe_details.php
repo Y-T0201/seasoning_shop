@@ -35,6 +35,11 @@ if (isset($_POST['btm_logout']) === true) {
     exit;
 }
 
+$recipe_details_id = '';
+if (isset($_GET['recipe_id']) === true) {
+    $recipe_details_id = $_GET['recipe_id'];
+}
+
 try {
     // データベースに接続
     $dbh = new PDO($dsn, $username, $password, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8mb4'));
@@ -271,48 +276,40 @@ if (isset($_POST['cart_post']) === true) {
     // 料理番号入力
     // アップロードを表示
     // SQL文を作成
-    $sql = 'SELECT ec_recipe_master.recipe_id, recipe_name, recipe_img, recipe_status, recipe_comment, ec_recipe_master.item_id, item_name, user_recipe_id
+    $sql = 'SELECT ec_recipe_master.recipe_id, recipe_name, recipe_img, recipe_status, recipe_comment, ec_recipe_master.item_id, item_name, user_recipe_id,
+                person, recipe_material, recipe, point
             FROM ec_recipe_master
             JOIN ec_item_master ON ec_recipe_master.item_id = ec_item_master.item_id
             LEFT JOIN ec_user_recipe ON ec_recipe_master.recipe_id = ec_user_recipe.recipe_id
-            WHERE ec_recipe_master.recipe_id = 13
+            LEFT JOIN ec_recipe_details ON ec_recipe_master.recipe_id = ec_recipe_details.recipe_id
+            WHERE ec_recipe_master.recipe_id = ?
             ORDER BY ec_recipe_master.recipe_id DESC';
     
     // SQL文を実行する準備            
     $statement = $dbh->prepare($sql);
+    $statement->bindvalue(1, $recipe_details_id, PDO::PARAM_INT);
     // SQLを実行
     $statement->execute();
     // レコードの取得    
-    $rows = $statement->fetchAll();
-     // 1行ずつ結果を配列で取得
-    // var_dump($rows);   
-    foreach ($rows as $row) {
-        $r_recipe[] = $row;
-        
-    foreach ($r_recipe as $value) {
+    $recipe_details = $statement->fetch();
 
-        $select_item_id = $value['item_id'];
-    }
-    }
-    
     // アップロードを表示
     // SQL文を作成
     $sql = 'SELECT ec_item_master.item_id, item_name, price, item_img, item_status, item_comment, stock, user_item_id
             FROM ec_item_master
             JOIN ec_item_stock ON ec_item_master.item_id = ec_item_stock.item_id
-            LEFT JOIN ec_user_item ON ec_item_master.item_id = ec_user_item.item_id          
+            LEFT JOIN ec_user_item ON ec_item_master.item_id = ec_user_item.item_id       
             WHERE ec_item_master.item_id = ?
             ORDER BY ec_item_master.item_id DESC'; 
 
     // SQL文を実行する準備
     $stmt = $dbh->prepare($sql);
-    $stmt->bindvalue(1, $select_item_id, PDO::PARAM_INT);
+    $stmt->bindvalue(1, $recipe_details['item_id'], PDO::PARAM_INT);
     // SQLを実行
     $stmt->execute();
     // レコードの取得
     $rows = $stmt->fetchAll();
     // 1行ずつ結果を配列で取得
-    // var_dump($rows);
     
     foreach ($rows as $row) {
         $data[] = $row;
@@ -624,79 +621,48 @@ if (isset($_POST['cart_post']) === true) {
     <?php } ?>
     <p class = "success"><?php print $success; ?></p>
     <br>
-    <?php foreach ($r_recipe as $r_value) { ?>
-        <?php if ($r_value['recipe_status'] === 1) { ?>
-            <h2><?php print htmlspecialchars ($r_value['recipe_name'], ENT_QUOTES, 'utf-8'); ?></h2>
-            <div class = "recipe_flex">
-                <img class = "recipe_img" src = "<?php print $recipe_img_dir . $r_value['recipe_img']; ?>">
-                <p class ="recipe_comment"><?php print htmlspecialchars ($r_value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></p>
-            </div>
-            <div class = "recipe_heart_flex">
-                       <form method = "post">
-                            <?php if ($r_value['user_recipe_id'] === null) { ?>                    
-                                <input type = "image" class = "recipe_heart" src = "../heart_ck.png">
-                            <?php } else { ?>
-                                <input type = "image" class = "recipe_heart" src = "../heart.png">
-                            <?php } ?>
-                            <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($r_value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
-                            <input type = "hidden" name = "heart" value = "recipe_heart">                    
-                        </form>
-                <p class = "heart_font">お気に入り</p>
-            </div>
-            <table class = "recipe_memo">
-                <tr><th colspan="3">材料（2人分）</th></tr>
-                <tr class = "f16">
-                    <td>
-                        <p class = food>絹豆腐</p>
-                        <p class = food>豚ミンチ</p>
-                        <p class = food>XO醤</p>
-                        <p class = food>にんにく（チューブ）</p>
-                        <p class = food>酒</p>
-                        <p class = food>ねぎ</p>
-                        <p class = food>片栗粉</p>
-                        <p class = food>☆みそ</p>
-                        <p class = food>☆粉末和風だし</p>
-                        <p class = food>☆粉末鶏がらスープ</p>
-                        <p class = food>☆醤油</p>
-                    </td>
-                    <td>
-                        <p>400g</p>
-                        <p>100g</p>
-                        <p>大さじ1</p>
-                        <p>2cm</p>
-                        <p>大さじ2</p>
-                        <p>好きなだけ</p>
-                        <p>適量</p>
-                        <p>小さじ1</p>
-                        <p>小さじ1/2</p>
-                        <p>小さじ1/2</p>
-                        <p>小さじ1</p>
-                    </td>
-                </tr>
-            </table>
-            <br>
-            <table class = "cook">
-                <tr><th>作り方</th></tr>
-                <tr class = "f20">
-                    <td>
-                        <ol>
-                            <li>豆腐を塩を入れた水で茹でる。（煮崩れ防止のため）</li><br>
-                            <li>フライパンにXO醤とにんにくを入れて、火にかけ香りが出てきたら豚ミンチを炒めていく。酒を回し入れして、しばらく蒸し焼きする。</li><br>
-                            <li>☆を入れてしっかりミンチに味を馴染ませておく。ひたひたの水を入れ、水きりした豆腐を入れしばらく煮る。</li><br>
-                            <li>水溶き片栗粉でとろみをつけ、ねぎを散らして完成！</li><br>
-                        </ol>                        
-                    </td>
-                </tr>
-                <tr><th>コツ・ポイント</th></tr>
-                <tr class = "f20">
-                    <td><br>
-                        豆腐は塩茹ですることで、余分な水分が出て、煮崩れしにくくなります。
-                        ミンチにしっかり味付けしてから煮るのでコクのあるマーボー豆腐になります。辛いマーボー豆腐にする場合は豆板醤を加えてください。
-                        <br><br>
-                    </td>
-                </tr>
-            </table>    
-        <?php } ?>
+    <?php if ($recipe_details['recipe_status'] === 1) { ?>
+        <h2><?php print htmlspecialchars ($recipe_details['recipe_name'], ENT_QUOTES, 'utf-8'); ?></h2>
+        <div class = "recipe_flex">
+            <img class = "recipe_img" src = "<?php print $recipe_img_dir . $recipe_details['recipe_img']; ?>">
+            <p class ="recipe_comment"><?php print htmlspecialchars ($recipe_details['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></p>
+        </div>
+        <div class = "recipe_heart_flex">
+                    <form method = "post">
+                        <?php if ($recipe_details['user_recipe_id'] === null) { ?>                    
+                            <input type = "image" class = "recipe_heart" src = "../heart_ck.png">
+                        <?php } else { ?>
+                            <input type = "image" class = "recipe_heart" src = "../heart.png">
+                        <?php } ?>
+                        <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($recipe_details['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
+                        <input type = "hidden" name = "heart" value = "recipe_heart">                    
+                    </form>
+            <p class = "heart_font">お気に入り</p>
+        </div>
+        <table class = "recipe_memo">
+            <tr><th colspan="3">材料（<?php print htmlspecialchars($recipe_details['person'], ENT_QUOTES, 'utf-8'); ?>人分）</th></tr>
+            <tr class = "f16">
+                <?php print $recipe_details['recipe_material']; ?>
+            </tr>
+        </table>
+        <br>
+        <table class = "cook">
+            <tr><th>作り方</th></tr>
+            <tr class = "f20">
+                <td>
+                    <ol>
+                        <?php print $recipe_details['recipe']; ?>
+                    </ol>                        
+                </td>
+            </tr>
+            <tr><th>コツ・ポイント</th></tr>
+            <tr class = "f20">
+                <td><br>
+                    <?php print htmlspecialchars($recipe_details['point'], ENT_QUOTES, 'utf-8'); ?>
+                    <br><br>
+                </td>
+            </tr>
+        </table>    
     <?php } ?>
     <h3>使用した調味料</h3>
     <table class = "mg125">
