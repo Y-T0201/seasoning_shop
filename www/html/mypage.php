@@ -1,8 +1,8 @@
 <?php
-$host = 'localhost';
+$host = 'mysql';
 $username = 'root';
-$password = 'nRlkY30ag';
-$dbname = 'ec_site';
+$password = 'root';
+$dbname = 'seasoning_shop';
 $charset = 'utf8';
 
 $item_img_dir = './item_img/'; // アップロードした画像ファイルの保存ディレクトリ
@@ -362,7 +362,7 @@ try {
             JOIN ec_history ON ec_recipe_master.item_id = ec_history.item_id
             LEFT JOIN ec_user_recipe ON ec_recipe_master.recipe_id = ec_user_recipe.recipe_id
             WHERE ec_history.user_id = ?
-            ORDER BY datetime DESC';
+            ORDER BY ec_recipe_master.recipe_id DESC';
             
     // SQL文を実行する準備
     $stmt = $dbh->prepare($sql);
@@ -695,12 +695,13 @@ try {
                         </form> 
                         <p class = "recipe_name"><?php print htmlspecialchars ($value['recipe_name'], ENT_QUOTES, 'utf-8'); ?></p>
                     </div>
-                    <a class = "recipe_link" href = "recipe/recipe_<?php print htmlspecialchars($value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>.php">
-                        <div class = "flex">
-                            <img class = "recipe_img" src = "<?php print $recipe_img_dir . $value['recipe_img']; ?>">
-                            <p class ="mg10"><?php print htmlspecialchars ($value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></p>
-                        </div>
-                    </a>
+                    <div class = "flex">
+                        <form action = "recipe_details.php" method="get">
+                            <input class = "recipe_img" type="image" src= "<?php print $recipe_img_dir . $value['recipe_img']; ?>">
+                            <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
+                        </form>
+                        <p class ="mg10"><?php print htmlspecialchars ($value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></p>
+                    </div>
                     <p class = "center">調味料名:<?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
                 </td>
             <?php } ?>
@@ -714,7 +715,10 @@ try {
             <?php if ($value['item_status'] === 1) { ?>
                 <td class = "list">
                     <div class = "flex">
-                        <img class = 'item_img' src = "<?php print $item_img_dir . $value['item_img']; ?>">
+                        <form action = "seasoning_details.php" method = "get">
+                            <input class = "history_img" type="image" src= "<?php print $item_img_dir . $value['item_img']; ?>">
+                            <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+                        </form>
                         <p class = "mg10"><?php print htmlspecialchars ($value['item_comment'], ENT_QUOTES, 'utf-8'); ?></p>
                     </div>
                     <div class = "flex">
@@ -767,12 +771,13 @@ try {
                         </form>
                         <p class = "recipe_name"><?php print htmlspecialchars ($value['recipe_name'], ENT_QUOTES, 'utf-8'); ?></p>
                     </div>
-                    <a class = "recipe_link" href = "recipe/recipe_<?php print htmlspecialchars($value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>.php">
-                        <div class = "flex">
-                            <img class = 'recipe_img' src = "<?php print $recipe_img_dir . $value['recipe_img']; ?>">
-                            <p class ="mg10"><?php print htmlspecialchars ($value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></p>
-                        </div>
-                    </a>
+                    <div class = "flex">
+                        <form action = "recipe_details.php" method="get">
+                            <input class = "recipe_img" type="image" src= "<?php print $recipe_img_dir . $value['recipe_img']; ?>">
+                            <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
+                        </form>
+                        <p class ="mg10"><?php print htmlspecialchars ($value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></p>
+                    </div>
                     <p>調味料名:<?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
                 </td>
                 <?php } ?>
@@ -790,12 +795,13 @@ try {
                     <?php break; ?>
                 <?php } else { ?>
                         <td class = "list">
-                            <a class = "item_link" href = "item/item_<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>.php">
-                                <div class = "flex">
-                                    <img class = 'history_img' src = "<?php print $item_img_dir . $value['item_img']; ?>">
-                                    <p class = "mg10"><?php print $value['datetime']; ?></p>
-                                </div>
-                            </a>
+                            <div class = "flex">
+                                <form action = "seasoning_details.php" method = "get">
+                                    <input class = "history_img" type="image" src= "<?php print $item_img_dir . $value['item_img']; ?>">
+                                    <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+                                </form>
+                                <p class = "mg10"><?php print $value['datetime']; ?></p>
+                            </div>
                             <div class = "flex">
                                 <p class = "mg_history">調味料名:<?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?>
                                 <!--税率8%計算-->
