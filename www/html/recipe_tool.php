@@ -110,21 +110,44 @@ try {
         } 
          
         if (count($err_msg) === 0) {
-            // 商品情報テーブルにデータ作成
-            $sql = 'insert into ec_recipe_master(recipe_name, recipe_img, recipe_status, item_id, recipe_comment, create_datetime)
-                    VALUES(?, ?, ?, ?, ?, NOW());';
-                    
-            // SQL文を実行する準備
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindvalue(1, $recipe_name, PDO::PARAM_STR);
-            $stmt->bindvalue(2, $recipe_img, PDO::PARAM_STR);
-            $stmt->bindvalue(3, $recipe_status, PDO::PARAM_INT);
-            $stmt->bindvalue(4, $item_id, PDO::PARAM_INT);
-            $stmt->bindvalue(5, $recipe_comment, PDO::PARAM_STR);
-            // SQLを実行
-            $stmt->execute();
+            $dbh->beginTransaction();
+            try {
+                // 商品情報テーブルにデータ作成
+                $sql = 'insert into ec_recipe_master(recipe_name, recipe_img, recipe_status, item_id, recipe_comment, create_datetime)
+                        VALUES(?, ?, ?, ?, ?, NOW());';
+                        
+                // SQL文を実行する準備
+                $stmt = $dbh->prepare($sql);
+                $stmt->bindvalue(1, $recipe_name, PDO::PARAM_STR);
+                $stmt->bindvalue(2, $recipe_img, PDO::PARAM_STR);
+                $stmt->bindvalue(3, $recipe_status, PDO::PARAM_INT);
+                $stmt->bindvalue(4, $item_id, PDO::PARAM_INT);
+                $stmt->bindvalue(5, $recipe_comment, PDO::PARAM_STR);
+                // SQLを実行
+                $stmt->execute();
+                // 登録したデータにIDを取得して出力
+                $id = $dbh->lastInsertId();
 
-            echo 'データが登録できました';
+                // レシピ詳細テーブルにデータ作成
+                $sql = 'insert into ec_recipe_details(recipe_id)
+                    VALUES(?);';
+                    
+                // SQL文を実行する準備
+                $stmt = $dbh->prepare($sql);
+                $stmt->bindvalue(1, $id, PDO::PARAM_INT);
+                // SQLを実行
+                $stmt->execute();
+
+                // コミット処理
+                $dbh->commit();
+                echo 'データが登録できました';
+
+            } catch (PDOExeption $e) {
+                // ロールバック処理
+                $dbh->rollback();
+                // 例外をスロー
+                throw $e;
+            }
         }
     }
     
