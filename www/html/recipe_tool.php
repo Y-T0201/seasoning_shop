@@ -331,6 +331,10 @@ try {
             $id = $_POST['recipe_id'];
         }
         
+        if (isset($_POST['recipe_img']) === true) {
+            $img = $_POST['recipe_img'];
+        }
+
         if (count($err_msg) === 0) {
             // ステータスをデータに更新
             $sql = 'DELETE
@@ -341,6 +345,11 @@ try {
             $stmt->bindValue(1,$id,PDO::PARAM_INT);
             // SQLを実行
             $stmt->execute();
+
+            // 画像の削除
+            if(file_exists($img)) {
+                unlink($img);
+            }
             
             echo '料理情報を削除しました';
         }
@@ -577,6 +586,7 @@ try {
     <form class = "delete_form" method = "post">
         <input class = "delete_btm" type = "submit" value = "削除する">
         <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
+        <input type = "hidden" name = "recipe_img" value = "<?php print $img_dir . $value['recipe_img']; ?>">
         <input type = "hidden" name = "process_kind" value = "recipe_delete">
     </td>
     </form>
