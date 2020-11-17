@@ -151,10 +151,20 @@ try {
                 $stmt->bindvalue(2, $stock, PDO::PARAM_INT);        
                 // SQLを実行
                 $stmt->execute();
+
+                // 商品詳細テーブルにデータを作成
+                $sql = 'insert into ec_item_details(item_id)
+                    VALUES(?);';
+
+                // SQL文を実行する準備
+                $stmt = $dbh->prepare($sql);
+                $stmt->bindvalue(1, $id, PDO::PARAM_INT);
+                // SQLを実行
+                $stmt->execute();
                 // コミット処理
                 $dbh->commit();
-                echo 'データが登録できました';
-               
+                echo 'データが登録できました';  
+
             } catch (PDOExeption $e) {
                 // ロールバック処理
                 $dbh->rollback();
