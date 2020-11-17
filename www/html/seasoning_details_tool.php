@@ -67,7 +67,7 @@ try {
         // 原産国名
         $country = '';
         if (isset($_POST['country']) === true) {
-            $country = $_POST['maker'];
+            $country = $_POST['country'];
             $country = str_replace(array(" "," "),"",$country);
         }
         

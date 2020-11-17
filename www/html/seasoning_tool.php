@@ -400,34 +400,49 @@ try {
         if (isset($_POST['item_id']) === true) {
             $id = $_POST['item_id'];
         }
-        
+
+        if (isset($_POST['item_img']) === true) {
+            $img = $_POST['item_img'];
+        }    
+
         if (count($err_msg) === 0) {
-            // ステータスをデータに更新
-            $sql = 'DELETE
-                    FROM ec_item_master
-                    WHERE item_id = ?';
-            
-            // $sql = 'DELETE ec_item_master
-            //         FROM ec_item_master
-            //         JOIN ec_item_stock
-            //         ON ec_item_master.item_id = ec_item_stock.item_id
-            //         WHERE item_id = ?';
-                    
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindValue(1,$id,PDO::PARAM_INT);
-            // SQLを実行
-            $stmt->execute();
-            
-            $sql = 'DELETE
-                    FROM ec_item_stock
-                    WHERE item_id = ?';
-                    
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindValue(1,$id,PDO::PARAM_INT);
-            // SQLを実行
-            $stmt->execute();
-     
-            echo '商品情報を削除しました';
+            // トランザクション開始
+            $dbh->beginTransaction();
+            try {
+                // カラムの削除
+                $sql = 'DELETE
+                        FROM ec_item_master
+                        WHERE item_id = ?';
+                
+                // SQL文を実行する準備
+                $stmt = $dbh->prepare($sql);
+                $stmt->bindValue(1,$id,PDO::PARAM_INT);
+                // SQLを実行
+                $stmt->execute();
+                
+                $sql = 'DELETE
+                        FROM ec_item_stock
+                        WHERE item_id = ?';
+                        
+                $stmt = $dbh->prepare($sql);
+                $stmt->bindValue(1,$id,PDO::PARAM_INT);
+                // SQLを実行
+                $stmt->execute();
+                // コミット処理
+                $dbh->commit();
+
+                // 画像の削除
+                if(file_exists($img)) {
+                    unlink($img);
+                }    
+                echo '商品情報を削除しました';
+
+            } catch (PDOExeption $e) {
+                // ロールバック処理
+                $dbh->rollback();
+                // 例外をスロー
+                throw $e;
+            }
         }
     }
     
@@ -649,6 +664,7 @@ try {
             <form class = "delete_form" method = "post">
                 <input class = "delete_btm" type = "submit" value = "削除する">
                 <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+                <input type = "hidden" name = "item_img" value = "<?php print $img_dir . $value['item_img']; ?>">
                 <input type = "hidden" name = "process_kind" value = "item_delete">
             </form>
             </td>

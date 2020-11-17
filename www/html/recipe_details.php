@@ -5,8 +5,8 @@ $password = 'root';
 $dbname = 'seasoning_shop';
 $charset = 'utf8';
 
-$item_img_dir = '../item_img/'; // アップロードした画像ファイルの保存ディレクトリ
-$recipe_img_dir = '../recipe_img/'; // アップロードした画像ファイルの保存ディレクトリ
+$item_img_dir = './item_img/'; // アップロードした画像ファイルの保存ディレクトリ
+$recipe_img_dir = './recipe_img/'; // アップロードした画像ファイルの保存ディレクトリ
 $err_msg = array();
 $data = array();
 $r_item = array();
@@ -25,13 +25,13 @@ if (isset($_SESSION['user_id']) === TRUE) {
     $user_id = $_SESSION['user_id'];
 } else {
     // ログインしてないので、ログインページに飛ばす
-    header('Location: ../login.php');
+    header('Location: login.php');
     exit;
 }
 
 if (isset($_POST['btm_logout']) === true) {
     session_destroy();
-    header('Location: ../login.php');
+    header('Location: login.php');
     exit;
 }
 
@@ -359,7 +359,7 @@ if (isset($_POST['cart_post']) === true) {
     
     body {
         width: 1250px;
-        background-image: url(../wood_bg.jpg);
+        background-image: url(wood_bg.jpg);
         background-size: 100%;
         background-repeat: no-repeat;
         background-attachment: fixed;    
@@ -580,16 +580,16 @@ if (isset($_POST['cart_post']) === true) {
 <body>
     <header>
         <div class = "top_flex">
-            <a class = "link_top" href = "../seasoning_list.php">
-                <img class = "icon" src="../apron.png">はじめての調味料
+            <a class = "link_top" href = "seasoning_list.php">
+                <img class = "icon" src="apron.png">はじめての調味料
             </a>
            <div class = "flex_recipe">
-                <a class = "btm_recipe" href = "../recipe_list.php">
-                    <img class = "img_recipe" src = "../recipe.png">
+                <a class = "btm_recipe" href = "recipe_list.php">
+                    <img class = "img_recipe" src = "recipe.png">
                     レシピ
                 </a>    
             </div>
-            <form class = "btm_search" method = "get" action = "../search_list.php">
+            <form class = "btm_search" method = "get" action = "search_list.php">
                 <select size = "1" name = "keyword">
                     <option value = "all">キーワード</option>
                     <option value = "item">調味料</option>
@@ -599,18 +599,18 @@ if (isset($_POST['cart_post']) === true) {
                 <input type = "submit" name = "search" value = "検索">
             </form>
             <div class = "flex_mypage">
-                <a class = "btm_mypage" href = "../mypage.php">
-                    <img class = "img_mypage" src = "../mypage.png">
+                <a class = "btm_mypage" href = "mypage.php">
+                    <img class = "img_mypage" src = "mypage.png">
                     MyPage
                 </a>    
             </div>
             <form method = "post">
-                <input class = "btm_logout" type = "image" src = "../logout.png">
+                <input class = "btm_logout" type = "image" src = "logout.png">
                 <input type = "hidden" name = "btm_logout" value = "btm_logout">
             </form>
             <div class = "cart_flex">
-                <a class = "cart_price"  href = "../shopping_cart.php">
-                    <img class = "cart_img" src = "../cart.png">
+                <a class = "cart_price"  href = "shopping_cart.php">
+                    <img class = "cart_img" src = "cart.png">
                     カートの中身&nbsp;&nbsp;<?php print htmlspecialchars(number_format($sum_price), ENT_QUOTES, 'utf-8'); ?>円
                 </a>
             </div>
@@ -630,9 +630,9 @@ if (isset($_POST['cart_post']) === true) {
         <div class = "recipe_heart_flex">
                     <form method = "post">
                         <?php if ($recipe_details['user_recipe_id'] === null) { ?>                    
-                            <input type = "image" class = "recipe_heart" src = "../heart_ck.png">
+                            <input type = "image" class = "recipe_heart" src = "heart_ck.png">
                         <?php } else { ?>
-                            <input type = "image" class = "recipe_heart" src = "../heart.png">
+                            <input type = "image" class = "recipe_heart" src = "heart.png">
                         <?php } ?>
                         <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($recipe_details['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
                         <input type = "hidden" name = "heart" value = "recipe_heart">                    
@@ -685,9 +685,9 @@ if (isset($_POST['cart_post']) === true) {
                     <div class = "flex">
                         <form method = "post">
                             <?php if ($value['user_item_id'] === null) { ?>                    
-                                <input type = "image" class = "heart" src = "../heart_ck.png">
+                                <input type = "image" class = "heart" src = "heart_ck.png">
                             <?php } else { ?>
-                                <input type = "image" class = "heart" src = "../heart.png">
+                                <input type = "image" class = "heart" src = "heart.png">
                             <?php } ?>
                             <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
                             <input type = "hidden" name = "heart" value = "item_heart">                    
