@@ -216,7 +216,6 @@ try {
 
     if ($process_kind === 'item_delete') {
         // データの削除
-
         if (isset($_POST['item_id']) === true) {
             $id = $_POST['item_id'];
         }
@@ -248,7 +247,17 @@ try {
                 $stmt->bindValue(1,$id,PDO::PARAM_INT);
                 // SQLを実行
                 $stmt->execute();
-                // コミット処理
+
+                $sql = 'DELETE
+                        FROM ec_item_details
+                        WHERE item_id = ?';
+                
+                $stmt = $dbh->prepare($sql);
+                $stmt->bindValue(1,$id,PDO::PARAM_INT);
+                // SQLを実行
+                $stmt->execute();
+
+                // コミット処理 
                 $dbh->commit();
 
                 // 画像の削除

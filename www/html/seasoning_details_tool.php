@@ -68,9 +68,9 @@ try {
                     if (is_file($img_dir . $update_item_img) !== true) {
                         
                         $sql = 'UPDATE ec_item_master
-                        SET item_img = ?
-                        WHERE ec_item_master.item_id = ?';
-        
+                                SET item_img = ?
+                                WHERE ec_item_master.item_id = ?';
+            
                         // SQL文を実行する準備
                         $stmt = $dbh->prepare($sql);
                         $stmt->bindvalue(1, $update_item_img, PDO::PARAM_STR);
@@ -313,9 +313,10 @@ try {
         .item_change {
             margin-left: 50px;
         }
+        
         textarea {
             width: 500px;
-            height: 100px;
+            height: 250px;
         }
     
         .new_submit {
