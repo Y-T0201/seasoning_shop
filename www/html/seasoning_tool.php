@@ -607,7 +607,7 @@ try {
             <td>
                 <img src = "<?php print $img_dir . $value['item_img']; ?>">
                 <form method = "post" enctype = "multipart/form-data">    
-                    <input type = "file" name = "update_item_img" ></p>
+                    <input type = "file" name = "update_item_img" >
                     <input name = "update_post" type = "submit" value = "変更する"> 
                     <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
                     <input type = "hidden" name = "process_kind" value = "update_item_img">
