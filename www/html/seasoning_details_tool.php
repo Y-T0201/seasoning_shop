@@ -387,10 +387,10 @@ try {
     <p>画像:</P>
         <img src = "<?php print $img_dir . $item_details['item_img']; ?>">
         <input type = "file" name = "update_item_img">
-    <p>価格:<input type = "text" class = "wd100" name = "update_price" value = "<?php print htmlspecialchars(number_format($item_details['price']), ENT_QUOTES, 'utf-8'); ?>">円</p>
+    <p>価格:<input type = "text" class = "wd100" name = "update_price" value = "<?php print htmlspecialchars($item_details['price'], ENT_QUOTES, 'utf-8'); ?>">円</p>
     <p>商品の詳細(98文字以内):</p>
     <textarea name = "update_item_comment" row = "4" cols = "40"><?php print htmlspecialchars($item_details['item_comment'], ENT_QUOTES, 'utf-8'); ?></textarea>
-    <p>在庫数:<input type = "text"  class = "wd100" name = "update_stock" value = "<?php print htmlspecialchars(number_format($item_details['stock']), ENT_QUOTES, 'utf-8'); ?>">個</p>
+    <p>在庫数:<input type = "text"  class = "wd100" name = "update_stock" value = "<?php print htmlspecialchars($item_details['stock'], ENT_QUOTES, 'utf-8'); ?>">個</p>
     <p>ステータス:
         <select size = "1" name = "change_item_status">
             <!-- 非公開時 -->
@@ -409,11 +409,11 @@ try {
     <p>原産国名:<input type = "text" name = "update_country" value = "<?php print htmlspecialchars($item_details['country'], ENT_QUOTES, 'utf-8'); ?>"></p>
     <p>原材料(100文字以内):</p>
     <textarea name = "update_material" row = "4" cols = "40"><?php print htmlspecialchars($item_details['material'], ENT_QUOTES, 'utf-8'); ?></textarea>
-    <p>梱包サイズ(cm):</p>
-    <p>幅:<input class = "wd100" type = "text" name = "update_width" value = "<?php print htmlspecialchars(number_format($item_details['width']), ENT_QUOTES, 'utf-8'); ?>">cm</p>
-    <p>奥行:<input class = "wd100" type = "text" name = "update_depth" value = "<?php print htmlspecialchars(number_format($item_details['depth']), ENT_QUOTES, 'utf-8'); ?>">cm</p>
-    <p>高さ:<input class = "wd100" type = "text" name = "update_height" value = "<?php print htmlspecialchars(number_format($item_details['height']), ENT_QUOTES, 'utf-8'); ?>">cm</p>
-    <p>商品の重量(g):<input class = "wd100" type = "text" name = "update_weight" value = "<?php print htmlspecialchars(number_format($item_details['weight']), ENT_QUOTES, 'utf-8'); ?>">g</p>
+    <p>梱包サイズ:</p>
+    <p>幅:<input class = "wd100" type = "text" name = "update_width" value = "<?php print htmlspecialchars($item_details['width'], ENT_QUOTES, 'utf-8'); ?>">cm</p>
+    <p>奥行:<input class = "wd100" type = "text" name = "update_depth" value = "<?php print htmlspecialchars($item_details['depth'], ENT_QUOTES, 'utf-8'); ?>">cm</p>
+    <p>高さ:<input class = "wd100" type = "text" name = "update_height" value = "<?php print htmlspecialchars($item_details['height'], ENT_QUOTES, 'utf-8'); ?>">cm</p>
+    <p>商品の重量(g):<input class = "wd100" type = "text" name = "update_weight" value = "<?php print htmlspecialchars($item_details['weight'], ENT_QUOTES, 'utf-8'); ?>">g</p>
     <input name = "update_post" type = "submit" value = "変更する"> 
 </form>
 </body>
