@@ -1,8 +1,8 @@
 <?php
-$host = 'localhost';
+$host = 'mysql';
 $username = 'root';
-$password = 'nRlkY30ag';
-$dbname = 'ec_site';
+$password = 'root';
+$dbname = 'seasoning_shop';
 $charset = 'utf8';
 
 $img_dir = './recipe_img/'; // アップロードした画像ファイルの保存ディレクトリ
@@ -110,21 +110,44 @@ try {
         } 
          
         if (count($err_msg) === 0) {
-            // 商品情報テーブルにデータ作成
-            $sql = 'insert into ec_recipe_master(recipe_name, recipe_img, recipe_status, item_id, recipe_comment, create_datetime)
-                    VALUES(?, ?, ?, ?, ?, NOW());';
-                    
-            // SQL文を実行する準備
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindvalue(1, $recipe_name, PDO::PARAM_STR);
-            $stmt->bindvalue(2, $recipe_img, PDO::PARAM_STR);
-            $stmt->bindvalue(3, $recipe_status, PDO::PARAM_INT);
-            $stmt->bindvalue(4, $item_id, PDO::PARAM_INT);
-            $stmt->bindvalue(5, $recipe_comment, PDO::PARAM_STR);
-            // SQLを実行
-            $stmt->execute();
+            $dbh->beginTransaction();
+            try {
+                // 商品情報テーブルにデータ作成
+                $sql = 'insert into ec_recipe_master(recipe_name, recipe_img, recipe_status, item_id, recipe_comment, create_datetime)
+                        VALUES(?, ?, ?, ?, ?, NOW());';
+                        
+                // SQL文を実行する準備
+                $stmt = $dbh->prepare($sql);
+                $stmt->bindvalue(1, $recipe_name, PDO::PARAM_STR);
+                $stmt->bindvalue(2, $recipe_img, PDO::PARAM_STR);
+                $stmt->bindvalue(3, $recipe_status, PDO::PARAM_INT);
+                $stmt->bindvalue(4, $item_id, PDO::PARAM_INT);
+                $stmt->bindvalue(5, $recipe_comment, PDO::PARAM_STR);
+                // SQLを実行
+                $stmt->execute();
+                // 登録したデータにIDを取得して出力
+                $id = $dbh->lastInsertId();
 
-            echo 'データが登録できました';
+                // レシピ詳細テーブルにデータ作成
+                $sql = 'insert into ec_recipe_details(recipe_id)
+                    VALUES(?);';
+                    
+                // SQL文を実行する準備
+                $stmt = $dbh->prepare($sql);
+                $stmt->bindvalue(1, $id, PDO::PARAM_INT);
+                // SQLを実行
+                $stmt->execute();
+
+                // コミット処理
+                $dbh->commit();
+                echo 'データが登録できました';
+
+            } catch (PDOExeption $e) {
+                // ロールバック処理
+                $dbh->rollback();
+                // 例外をスロー
+                throw $e;
+            }
         }
     }
     
@@ -331,6 +354,10 @@ try {
             $id = $_POST['recipe_id'];
         }
         
+        if (isset($_POST['recipe_img']) === true) {
+            $img = $_POST['recipe_img'];
+        }
+
         if (count($err_msg) === 0) {
             // ステータスをデータに更新
             $sql = 'DELETE
@@ -341,6 +368,11 @@ try {
             $stmt->bindValue(1,$id,PDO::PARAM_INT);
             // SQLを実行
             $stmt->execute();
+
+            // 画像の削除
+            if(file_exists($img)) {
+                unlink($img);
+            }
             
             echo '料理情報を削除しました';
         }
@@ -438,6 +470,14 @@ try {
         
         .flex {
             display: flex;
+        }
+        
+        .delete_form {
+            margin-top: 30px;
+        }
+
+        .delete_btm {
+            color: red;
         }
 
     </style>
@@ -561,10 +601,15 @@ try {
         <input type = "hidden" name = "process_kind" value = "change_recipe_status">
     </td>
     </form>
-    <form method = "post">
     <td>
-        <input type = "submit" value = "削除する">
+    <form action = "recipe_tool_details.php" method = "get">
+        <input type = "submit" value = "編集する">
         <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
+    </form>
+    <form class = "delete_form" method = "post">
+        <input class = "delete_btm" type = "submit" value = "削除する">
+        <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
+        <input type = "hidden" name = "recipe_img" value = "<?php print $img_dir . $value['recipe_img']; ?>">
         <input type = "hidden" name = "process_kind" value = "recipe_delete">
     </td>
     </form>

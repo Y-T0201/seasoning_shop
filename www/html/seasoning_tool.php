@@ -151,10 +151,20 @@ try {
                 $stmt->bindvalue(2, $stock, PDO::PARAM_INT);        
                 // SQLを実行
                 $stmt->execute();
+
+                // 商品詳細テーブルにデータを作成
+                $sql = 'insert into ec_item_details(item_id)
+                    VALUES(?);';
+
+                // SQL文を実行する準備
+                $stmt = $dbh->prepare($sql);
+                $stmt->bindvalue(1, $id, PDO::PARAM_INT);
+                // SQLを実行
+                $stmt->execute();
                 // コミット処理
                 $dbh->commit();
-                echo 'データが登録できました';
-               
+                echo 'データが登録できました';  
+
             } catch (PDOExeption $e) {
                 // ロールバック処理
                 $dbh->rollback();
@@ -171,197 +181,7 @@ try {
     }
     
     // 送られてきた非表示データに応じて処理を振り分ける。
-    
-    $update_item_img = '';
-    
-    if ($process_kind === 'update_item_img') {
-        // 画像の変更
-        // HTTP POST でファイルがアップロードされたかどうかチェック
-
-        if (is_uploaded_file($_FILES['update_item_img']['tmp_name']) === true) {
-            // 画像の拡張子を取得
-            $extension = pathinfo($_FILES['update_item_img']['name'], PATHINFO_EXTENSION);
-            // 指定の拡張子であるかどうかチェック
-            if ($extension === 'jpg' || $extension === 'jpeg' || $extension === 'png') {
-                // 保存する新しいファイル名の生成(ユニークな値を設定する)
-                $update_item_img = sha1(uniqid(mt_rand(), true)). '.' . $extension;
-                // 同名ファイルが存在しているかチェック
-                if (is_file($img_dir . $update_item_img) !== true) {
-                    // アップロードされたファイルを指定ディレクトリに移動して保存
-                    if (move_uploaded_file($_FILES['update_item_img']['tmp_name'], $img_dir . $update_item_img) !== true) {
-                        $err_msg[] = 'ファイルアップロードに失敗しました';
-                    }
-                } else {
-                    $err_msg[] = 'ファイルアップロードに失敗しました。再度お試しください。';
-                }
-            } else {
-                $err_msg[] = 'ファイル形式が異なります。画像ファイルはJPEG、またはPNGのみ利用可能です。';
-            }
-        } else {
-            $err_msg[] = 'ファイルを選択してください';
-        }
-    
-        if (isset($_POST['item_id']) === true) {
-            $id = $_POST['item_id'];
-        }
         
-        // 画像の情報テーブルにデータを更新
-        if (count($err_msg) === 0) {
-            $sql = 'UPDATE ec_item_master
-                    SET item_img = ?, update_datetime = NOW()
-                    WHERE item_id = ?';
-            
-            // SQL文を実行する準備
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindvalue(1, $update_item_img, PDO::PARAM_STR);
-            $stmt->bindvalue(2, $id, PDO::PARAM_INT);
-            // SQLを実行
-            $stmt->execute();
-            
-            echo '画像の変更が成功しました。'; 
-        }
-
-    }
-    
-    $update_item_name = '';
-    
-    if ($process_kind === 'update_item_name') {
-        // 商品名の変更
-        if (isset($_POST['update_item_name']) === true) {
-            $update_item_name = $_POST['update_item_name'];
-            $update_item_name = str_replace(array(" "," "),"",$update_item_name);
-        }
-        
-        if (mb_strlen($update_item_name) === 0) {
-            $err_msg[] = '商品名を入力してください';
-        } else if (mb_strlen($update_item_name) > 12) {
-            $err_msg[] = '商品名は12文字以内で入力してください';
-        }
-        
-        if (isset($_POST['item_id']) === true) {
-            $id = $_POST['item_id'];
-        }
-    
-        // 商品名の情報テーブルにデータを更新
-        if (count($err_msg) === 0) {
-            $sql = 'UPDATE ec_item_master
-                    SET item_name = ?, update_datetime = NOW()
-                    WHERE item_id = ?';
-            
-            // SQL文を実行する準備
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindvalue(1, $update_item_name, PDO::PARAM_STR);
-            $stmt->bindvalue(2, $id, PDO::PARAM_INT);
-            // SQLを実行
-            $stmt->execute();
-            
-            echo '商品名の変更が成功しました。';
-        }
-    }
-    
-    $update_price = '';
-    
-    if ($process_kind === 'update_price') {
-        // 価格の変更
-        if (isset($_POST['update_price']) === true) {
-            $update_price = $_POST['update_price'];
-            $update_price = str_replace(array(" "," "),"",$update_price);
-        }
-        
-        if (preg_match('/^[0-9]+$/', $update_price) !== 1) {
-            $err_msg[] = '値段は0以上の整数を入力してください';
-        }
-        
-        if (isset($_POST['item_id']) === true) {
-            $id = $_POST['item_id'];
-        }
-    
-        // 価格の情報テーブルにデータを更新
-        if (count($err_msg) === 0) {
-            $sql = 'UPDATE ec_item_master
-                    SET price = ?, update_datetime = NOW()
-                    WHERE item_id = ?';
-            
-            // SQL文を実行する準備
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindvalue(1, $update_price, PDO::PARAM_INT);
-            $stmt->bindvalue(2, $id, PDO::PARAM_INT);
-            // SQLを実行
-            $stmt->execute();
-            
-            echo '価格の変更が成功しました。';
-        }
-    }
-    
-    $update_item_comment = '';
-    
-    if ($process_kind === 'update_item_comment') {
-        // 商品詳細の変更
-        if (isset($_POST['update_item_comment']) === true) {
-            $update_item_comment = $_POST['update_item_comment'];
-            $update_item_comment = str_replace(array(" "," "),"",$update_item_comment);
-        }
-        
-        if (mb_strlen($update_item_comment) === 0) {
-            $err_msg[] = '商品の詳細を入力してください';
-        } else if (mb_strlen($update_item_comment) > 98) {
-            $err_msg[] = '詳細は98文字以内で入力してください';
-        }
-        
-        if (isset($_POST['item_id']) === true) {
-            $id = $_POST['item_id'];
-        }
-    
-        // 商品の詳細の情報テーブルにデータを更新
-        if (count($err_msg) === 0) {
-            $sql = 'UPDATE ec_item_master
-                    SET item_comment = ?, update_datetime = NOW()
-                    WHERE item_id = ?';
-            
-            // SQL文を実行する準備
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindvalue(1, $update_item_comment, PDO::PARAM_STR);
-            $stmt->bindvalue(2, $id, PDO::PARAM_INT);
-            // SQLを実行
-            $stmt->execute();
-            
-            echo '商品の詳細の変更が成功しました。';
-        }
-    }    
-    
-    $update_stock = '';
-    
-    if ($process_kind === 'update_stock') {
-        // 在庫数の変更
-        if (isset($_POST['update_stock']) === true) {
-            $update_stock = $_POST['update_stock'];
-        }
-        
-        if (preg_match('/^[0-9]+$/', $update_stock) !== 1) {
-            $err_msg[] = '在庫数は0以上の整数を入力してください';
-        }
-        
-        if (isset($_POST['item_id']) === true) {
-            $id = $_POST['item_id'];
-        }
-        
-        // 在庫数の情報テーブルにデータを更新
-        if (count($err_msg) === 0) {
-            $sql = 'UPDATE ec_item_stock
-                    SET stock = ?, update_datetime = NOW()
-                    WHERE item_id = ?';
-            
-            // SQL文を実行する準備
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindvalue(1, $update_stock, PDO::PARAM_INT);
-            $stmt->bindvalue(2, $id, PDO::PARAM_INT);
-            // SQLを実行
-            $stmt->execute();
-            
-            echo '在庫数の変更が成功しました。';
-        }
-    }
-    
     $change_item_status = '';
     
     if ($process_kind === 'change_item_status') {
@@ -400,34 +220,49 @@ try {
         if (isset($_POST['item_id']) === true) {
             $id = $_POST['item_id'];
         }
-        
+
+        if (isset($_POST['item_img']) === true) {
+            $img = $_POST['item_img'];
+        }    
+
         if (count($err_msg) === 0) {
-            // ステータスをデータに更新
-            $sql = 'DELETE
-                    FROM ec_item_master
-                    WHERE item_id = ?';
-            
-            // $sql = 'DELETE ec_item_master
-            //         FROM ec_item_master
-            //         JOIN ec_item_stock
-            //         ON ec_item_master.item_id = ec_item_stock.item_id
-            //         WHERE item_id = ?';
-                    
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindValue(1,$id,PDO::PARAM_INT);
-            // SQLを実行
-            $stmt->execute();
-            
-            $sql = 'DELETE
-                    FROM ec_item_stock
-                    WHERE item_id = ?';
-                    
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindValue(1,$id,PDO::PARAM_INT);
-            // SQLを実行
-            $stmt->execute();
-     
-            echo '商品情報を削除しました';
+            // トランザクション開始
+            $dbh->beginTransaction();
+            try {
+                // カラムの削除
+                $sql = 'DELETE
+                        FROM ec_item_master
+                        WHERE item_id = ?';
+                
+                // SQL文を実行する準備
+                $stmt = $dbh->prepare($sql);
+                $stmt->bindValue(1,$id,PDO::PARAM_INT);
+                // SQLを実行
+                $stmt->execute();
+                
+                $sql = 'DELETE
+                        FROM ec_item_stock
+                        WHERE item_id = ?';
+                        
+                $stmt = $dbh->prepare($sql);
+                $stmt->bindValue(1,$id,PDO::PARAM_INT);
+                // SQLを実行
+                $stmt->execute();
+                // コミット処理
+                $dbh->commit();
+
+                // 画像の削除
+                if(file_exists($img)) {
+                    unlink($img);
+                }    
+                echo '商品情報を削除しました';
+
+            } catch (PDOExeption $e) {
+                // ロールバック処理
+                $dbh->rollback();
+                // 例外をスロー
+                throw $e;
+            }
         }
     }
     
@@ -458,7 +293,7 @@ try {
     <title>はじめての調味料　管理ページ</title>
     <style>
         h2, table {
-            width: 1300px;
+            width: 1400px;
         }
     
         h2 {
@@ -485,7 +320,7 @@ try {
         table, tr, th, td {
             border: solid 1px;
             padding: 10px;
-            text-align: center;
+            /* text-align: center; */
         }
         
         img {
@@ -556,7 +391,7 @@ try {
     <textarea name = "item_comment" row = "4" cols = "40"></textarea>
     <div class = new_submit><input name = "new_post" type = "submit" value = "商品を登録する"></div>
 </form>
-<h2>商品情報の一覧・変更</h2>
+<h2>商品情報の一覧</h2>
 <table>
     <tr>
         <th>No</th>
@@ -578,53 +413,12 @@ try {
             <tr>
         <?php } ?>
             <td><?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?></td>
-            <!--画像を変更する-->
-            <td>
-                <img src = "<?php print $img_dir . $value['item_img']; ?>">
-                <form method = "post" enctype = "multipart/form-data">    
-                    <input type = "file" name = "update_item_img" ></p>
-                    <input name = "update_post" type = "submit" value = "変更する"> 
-                    <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
-                    <input type = "hidden" name = "process_kind" value = "update_item_img">
-                </form>        
-            </td>
-            <!--商品名を変更する-->
-            <form method = "post">
-            <td>
-                <input type = "text" name = "update_item_name" value = "<?php print htmlspecialchars($value['item_name'], ENT_QUOTES, 'utf-8'); ?>"><br>
-                <input name = "update_post" type = "submit" value = "変更する"> 
-                <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
-                <input type = "hidden" name = "process_kind" value = "update_item_name">
-            </td>
-            </form>
-            <!--価格を変更する-->
-            <form method = "post">
-            <td>
-                <input type = "text" class = "wd100" name = "update_price" value = "<?php print htmlspecialchars(number_format($value['price']), ENT_QUOTES, 'utf-8'); ?>">円
-                <input name = "update_post" type = "submit" value = "変更する"> 
-                <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
-                <input type = "hidden" name = "process_kind" value = "update_price">
-            </td>
-            </form>
+            <td align="center"><img src = "<?php print $img_dir . $value['item_img']; ?>"></td>
+            <td align="center" width="100"><?php print htmlspecialchars($value['item_name'], ENT_QUOTES, 'utf-8'); ?></td>
+            <td align="center" width="100"><?php print htmlspecialchars(number_format($value['price']), ENT_QUOTES, 'utf-8'); ?>円</td>
             <!--<td></td>-->
-            <!--商品の詳細を変更する-->
-            <form method = "post">
-            <td>
-                <textarea name = "update_item_comment" row = "4" cols = "40"><?php print htmlspecialchars($value['item_comment'], ENT_QUOTES, 'utf-8'); ?></textarea>
-                <input name = "update_post" type = "submit" value = "変更する"> 
-                <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
-                <input type = "hidden" name = "process_kind" value = "update_item_comment">
-            </td>
-            </form>
-            <!--在庫数を変更する-->
-            <form method = "post">
-            <td>
-                <input type = "text"  class = "wd100" name = "update_stock" value = "<?php print htmlspecialchars(number_format($value['stock']), ENT_QUOTES, 'utf-8'); ?>">個&nbsp;&nbsp;
-                <input name = "update_post" type = "submit" value = "変更する"> 
-                <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
-                <input type = "hidden" name = "process_kind" value = "update_stock">
-            </td>
-            </form>
+            <td><?php print htmlspecialchars($value['item_comment'], ENT_QUOTES, 'utf-8'); ?></td>
+            <td align="center" width="100"><?php print htmlspecialchars(number_format($value['stock']), ENT_QUOTES, 'utf-8'); ?>個</td>
             <!--ステータスを変更する-->
             <form method = "post">
             <td>
@@ -642,14 +436,14 @@ try {
             </td>
             </form>
             <td>
-            <form action = "seasoning_details_tool.php" method = "post">
+            <form action = "seasoning_details_tool.php" method = "get">
                 <input type = "submit" value = "編集する">
                 <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
-                <input type = "hidden" name = "process_kind" value = "item_details">
             </form>
             <form class = "delete_form" method = "post">
                 <input class = "delete_btm" type = "submit" value = "削除する">
                 <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+                <input type = "hidden" name = "item_img" value = "<?php print $img_dir . $value['item_img']; ?>">
                 <input type = "hidden" name = "process_kind" value = "item_delete">
             </form>
             </td>

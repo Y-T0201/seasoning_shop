@@ -477,12 +477,14 @@ try {
         <?php foreach ($data as $value) { ?>
             <?php if ($value['item_status'] === 1) { ?>
                 <td class = "list">
-                    <a class = "item_link" href = "seasoning_details.php">
-                        <div class = "flex">
-                            <img class = "item_img" src = "<?php print $img_dir . $value['item_img']; ?>">
-                            <p class = "mg10"><?php print htmlspecialchars ($value['item_comment'], ENT_QUOTES, 'utf-8'); ?></p>
-                        </div>
-                    </a>
+                    <div class = "flex">
+                        <!--getフォームでxyが送信される-->
+                        <form action = "seasoning_details.php" method = "get">
+                            <input class = "item_img" type="image" src= "<?php print $img_dir . $value['item_img']; ?>">
+                            <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+                        </form>
+                        <p class = "mg10"><?php print htmlspecialchars ($value['item_comment'], ENT_QUOTES, 'utf-8'); ?></p>
+                    </div>
                     <div class = "flex">
                         <p>調味料名:<?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
                         <!--税率8%計算-->

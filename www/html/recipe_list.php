@@ -1,8 +1,8 @@
 <?php
-$host = 'localhost';
+$host = 'mysql';
 $username = 'root';
-$password = 'nRlkY30ag';
-$dbname = 'ec_site';
+$password = 'root';
+$dbname = 'seasoning_shop';
 $charset = 'utf8';
 
 $item_img_dir = './item_img/'; // アップロードした画像ファイルの保存ディレクトリ
@@ -425,12 +425,13 @@ try {
                         </form> 
                         <p class = "recipe_name"><?php print htmlspecialchars ($r_value['recipe_name'], ENT_QUOTES, 'utf-8'); ?></p>
                     </div>
-                    <a class = "recipe_link" href = "recipe/recipe_<?php print htmlspecialchars($r_value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>.php">
-                        <div class = "flex">
-                            <img class = "recipe_img" src = "<?php print $recipe_img_dir . $r_value['recipe_img']; ?>">
-                            <p class ="mg10"><?php print htmlspecialchars ($r_value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></p>
-                        </div>
-                    </a>
+                    <div class = "flex">
+                        <form action = "recipe_details.php" method="get">
+                            <input class = "recipe_img" type="image" src= "<?php print $recipe_img_dir . $r_value['recipe_img']; ?>">
+                            <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($r_value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
+                        </form>
+                        <p class ="mg10"><?php print htmlspecialchars ($r_value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></p>
+                    </div>
                     <p class = "center">調味料名:<?php print htmlspecialchars ($r_value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
                 </td>
             <?php } ?>
