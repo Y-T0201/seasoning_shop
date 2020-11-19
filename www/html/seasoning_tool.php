@@ -216,7 +216,6 @@ try {
 
     if ($process_kind === 'item_delete') {
         // データの削除
-
         if (isset($_POST['item_id']) === true) {
             $id = $_POST['item_id'];
         }
@@ -248,7 +247,17 @@ try {
                 $stmt->bindValue(1,$id,PDO::PARAM_INT);
                 // SQLを実行
                 $stmt->execute();
-                // コミット処理
+
+                $sql = 'DELETE
+                        FROM ec_item_details
+                        WHERE item_id = ?';
+                
+                $stmt = $dbh->prepare($sql);
+                $stmt->bindValue(1,$id,PDO::PARAM_INT);
+                // SQLを実行
+                $stmt->execute();
+
+                // コミット処理 
                 $dbh->commit();
 
                 // 画像の削除
@@ -367,6 +376,7 @@ try {
 <?php foreach ($err_msg as $value) { ?>
     <p><?php print $value; ?></p>
 <?php } ?>
+<a class = "margin50" href = "seasoning_tool.php">調味料管理ページ</a>
 <a class = "margin50" href = "recipe_tool.php">レシピ管理ページ</a>
 <a class = "margin50" href = "users_tool.php">ユーザー管理ページ</a>
 <a class = "margin50" href = "history_tool.php">購入履歴管理ページ</a>

@@ -386,6 +386,14 @@ try {
         width: 1026px;
     }
    
+    .item_table, .list {
+       background-color: #FFFFFF;
+   }
+
+    .item_comment {
+        background-color: #FFFFF0;
+    }
+    
     .right {   
         position: relative;
         left: 930px;
@@ -413,13 +421,14 @@ try {
     }
     
     .list {
-        margin-left: 0.5px;
-        margin-top: 0.5px;
+        /* margin-left: 0.5px;
+        margin-top: 0.5px; */
         width: 500px;
         height: 250px;
         border: solid 1px;
         padding: 10px;
         display: inline-block;
+        border-collapse: collapse;
         /*margin: 0px 0px 0px 100px;*/
     }
     
@@ -460,7 +469,9 @@ try {
     }
     
     .item_comment {
+        padding: 20px;
         font-size: 20px;
+        /* text-decoration: underline; */
     }
     
     .cart_price {
@@ -637,7 +648,8 @@ try {
     <p class = "success"><?php print $success; ?></p>
     <br>
     <?php foreach ($data as $value) { ?>
-        <?php if ($value['item_status'] === 1) { ?>
+        <?php var_dump($user_name); ?>
+        <?php if ($value['item_status'] === 1 || $user_id === 1) { ?>
             <h2><?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?></h2>
             <div class = "item_flex">
                 <img class = "item_img" src = "<?php print $item_img_dir . $value['item_img']; ?>">
@@ -652,7 +664,7 @@ try {
                     <th class = "item_th">メーカー</th>
                     <td class = "item_td"><?php print htmlspecialchars ($item_details['maker'], ENT_QUOTES, 'utf-8'); ?></td>
                 </tr>            
-                 <tr>
+                <tr>
                     <th class = "item_th">原産国名</th>
                     <td class = "item_td"><?php print htmlspecialchars ($item_details['country'], ENT_QUOTES, 'utf-8'); ?></td>
                 </tr>
@@ -695,7 +707,6 @@ try {
                     </form>                          
                 <?php } ?>
             </div>
-        </table>
         <?php } ?>
     <?php } ?>        
     <h3>おすすめレシピ</h3>

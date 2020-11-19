@@ -668,7 +668,7 @@ if (isset($_POST['cart_post']) === true) {
     <table class = "mg125">
         <tr>
         <?php foreach ($data as $value) { ?>
-            <?php if ($value['item_status'] === 1) { ?>
+            <?php if ($value['item_status'] === 1 || $user_id === "admin") { ?>
                 <td class = "list">
                     <div class = "flex">
                         <form action = "seasoning_details.php" method = "get">

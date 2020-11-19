@@ -449,7 +449,7 @@ try {
         table, tr, th, td {
             border: solid 1px;
             padding: 10px;
-            text-align: center;
+            /* text-align: center; */
         }
         
         img {
@@ -493,6 +493,7 @@ try {
     <p><?php print $value; ?></p>
 <?php } ?>
 <a class = "margin50" href = "seasoning_tool.php">調味料管理ページ</a>
+<a class = "margin50" href = "recipe_tool.php">レシピ管理ページ</a>
 <a class = "margin50" href = "users_tool.php">ユーザー管理ページ</a>
 <a class = "margin50" href = "history_tool.php">購入履歴管理ページ</a>
 <a class = "margin50" href = "seasoning_list.php">ECサイト</a>
@@ -541,50 +542,16 @@ try {
     <?php } else { ?>
         <tr>
     <?php } ?>
-        <td><?php print htmlspecialchars($value['recipe_id'], ENT_QUOTES, 'utf-8'); ?></td>
-        <!--画像を変更する-->
-        <td>
-            <img src = "<?php print $img_dir . $value['recipe_img']; ?>">
-            <form method = "post" enctype = "multipart/form-data">    
-                <input type = "file" name = "update_recipe_img" ></p>
-                <input name = "update_post" type = "submit" value = "変更する"> 
-                <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
-                <input type = "hidden" name = "process_kind" value = "update_recipe_img">
-            </form>        
-        </td>
-    <!--料理名を変更する-->
-    <form method = "post">        
-    <td>
-        <input type = "text" name = "update_recipe_name" value = "<?php print htmlspecialchars($value['recipe_name'], ENT_QUOTES, 'utf-8'); ?>" class = "height200"><br>
-        <input name = "update_post" type = "submit" value = "変更する"> 
-        <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
-        <input type = "hidden" name = "process_kind" value = "update_recipe_name">    
-    </td>
-    </form>
-    <!--調味料を変更する-->
-    <form method = "post">
-    <td>
-        <select size = "1" name = "update_item_id">
-            <option value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>"><?php print htmlspecialchars($value['item_name'], ENT_QUOTES, 'utf-8'); ?></option>
-            <?php foreach ($name as $i_name) { ?>
-            <option value = "<?php print htmlspecialchars($i_name['item_id'], ENT_QUOTES, 'utf-8'); ?>"><?php print htmlspecialchars($i_name['item_name'], ENT_QUOTES, 'utf-8'); ?></option>
-        <?php } ?>
-        </select>
-        <input name = "update_post" type = "submit" value = "変更する"> 
-        <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
-        <input type = "hidden" name = "process_kind" value = "update_item_id">
-    </td>
-    </form>
+    <td><?php print htmlspecialchars($value['recipe_id'], ENT_QUOTES, 'utf-8'); ?></td>
+    <!--画像-->
+    <td align="center"><img src = "<?php print $img_dir . $value['recipe_img']; ?>"></td>
+    <!--料理名-->   
+    <td align="center" width="200"><?php print htmlspecialchars($value['recipe_name'], ENT_QUOTES, 'utf-8'); ?></td>
+    <!--調味料-->
+    <td align="center" width="100"><?php print htmlspecialchars($value['item_name'], ENT_QUOTES, 'utf-8'); ?></td>
     <!--<td></td>-->
-    <!--料理の詳細を変更する-->
-    <form method = "post">
-    <td>
-        <textarea name = "update_recipe_comment" row = "4" cols = "40" value = "<?php print htmlspecialchars($value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?>"><?php print htmlspecialchars($value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></textarea>
-        <input name = "update_post" type = "submit" value = "変更する"> 
-        <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
-        <input type = "hidden" name = "process_kind" value = "update_recipe_comment">
-    </td>
-    </form>
+    <!--料理の詳細-->
+    <td><?php print htmlspecialchars($value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></td>
     <!--ステータスを変更する-->
     <form method = "post">
     <td>

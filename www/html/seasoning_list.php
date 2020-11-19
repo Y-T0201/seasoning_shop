@@ -273,13 +273,15 @@ try {
     }
     
     .list {
-        margin-left: 0.5px;
-        margin-top: 0.5px;
+        /* margin-left: 0.5px;
+        margin-top: 0.5px; */
         width: 500px;
         height: 250px;
         border: solid 1px;
         padding: 10px;
         display: inline-block;
+        border-collapse: collapse;
+        background-color: #ffffff;
         /*margin: 0px 0px 0px 100px;*/
     }
     
@@ -294,6 +296,7 @@ try {
     
     .mg125 {
         margin-left: 100px;
+        border-collapse: collapse;
     }
     
     .flex, .cart_flex, .flex_mypage, .flex_recipe, .top_flex {

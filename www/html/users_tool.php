@@ -1,8 +1,8 @@
 <?php
-$host = 'localhost';
+$host = 'mysql';
 $username = 'root';
-$password = 'nRlkY30ag';
-$dbname = 'ec_site';
+$password = 'root';
+$dbname = 'seasoning_shop';
 $charset = 'utf8';
 
 $img_dir = './item_img/'; // アップロードした画像ファイルの保存ディレクトリ
@@ -106,6 +106,7 @@ try {
 </div>
 <a class = "margin50" href = "seasoning_tool.php">調味料管理ページ</a>
 <a class = "margin50" href = "recipe_tool.php">レシピ管理ページ</a>
+<a class = "margin50" href = "users_tool.php">ユーザー管理ページ</a>
 <a class = "margin50" href = "history_tool.php">購入履歴管理ページ</a>
 <a class = "margin50" href = "seasoning_list.php">ECサイト</a>
 <h2>ユーザー情報一覧</h2>
