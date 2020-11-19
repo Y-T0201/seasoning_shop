@@ -313,7 +313,7 @@ try {
         .item_change {
             margin-left: 50px;
         }
-        
+
         textarea {
             width: 500px;
             height: 250px;
@@ -346,13 +346,18 @@ try {
             width: 100px;
         }
         
-        .btm_logout {
+        .btm_logout, .btm_preview, .form_preview {
             margin: 8px 0px 0px 50px;
             padding: 0px;
             height: 50px;
             width: 100px;
         }
         
+        .btm_preview {
+            color: #ffffff;
+            background-color: blue;
+        }
+
         .flex {
             display: flex;
         }
@@ -370,6 +375,10 @@ try {
 <body>
 <div class = "flex">
     <h1>はじめての調味料　管理ページ</h1>
+    <form class = "form_preview" action = "seasoning_details.php" method = "get">
+        <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($item_details['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+        <input class = "btm_preview" type = "submit" name = "preview" value = "プレビュー">
+    </form>
     <form class = "btm_logout" method = "post">
         <input class = "btm_logout" type = "submit" name = "btm_logout" value = "ログアウト">
     </form>

@@ -258,13 +258,18 @@ try {
             background: gray;
         }
         
-        .btm_logout {
+        .btm_logout, .btm_preview, .form_preview {
             margin: 8px 0px 0px 50px;
             padding: 0px;
             height: 50px;
             width: 100px;
         }
         
+        .btm_preview {
+            color: #ffffff;
+            background-color: blue;
+        }
+
         .flex {
             display: flex;
         }
@@ -282,6 +287,10 @@ try {
 <body>
 <div class = "flex">    
     <h1>はじめての調味料　管理ページ</h1>
+    <form class = "form_preview" action = "recipe_details.php" method = "get">
+        <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($recipe_details['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
+        <input class = "btm_preview" type = "submit" name = "preview" value = "プレビュー">
+    </form>
     <form class = "btm_logout" method = "post">
         <input class = "btm_logout" type = "submit" name = "btm_logout" value = "ログアウト">
     </form>
@@ -313,7 +322,7 @@ try {
     <p>ステータス:
         <select size = "1" name = "change_recipe_status">
             <!-- 非公開時 -->
-            <?php if ($item_details['item_status'] === 0) { ?>
+            <?php if ($recipe_details['recipe_status'] === 0) { ?>
                 <option value = "0">非公開</option>
                 <option value = "1">公開</option>
             <!-- 公開時 -->

@@ -376,6 +376,7 @@ try {
 <?php foreach ($err_msg as $value) { ?>
     <p><?php print $value; ?></p>
 <?php } ?>
+<a class = "margin50" href = "seasoning_tool.php">調味料管理ページ</a>
 <a class = "margin50" href = "recipe_tool.php">レシピ管理ページ</a>
 <a class = "margin50" href = "users_tool.php">ユーザー管理ページ</a>
 <a class = "margin50" href = "history_tool.php">購入履歴管理ページ</a>
