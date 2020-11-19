@@ -296,6 +296,7 @@ try {
     
     .mg125 {
         margin-left: 100px;
+        border-collapse: collapse;
     }
     
     .flex, .cart_flex, .flex_mypage, .flex_recipe, .top_flex {

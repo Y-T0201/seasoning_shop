@@ -648,7 +648,8 @@ try {
     <p class = "success"><?php print $success; ?></p>
     <br>
     <?php foreach ($data as $value) { ?>
-        <?php if ($value['item_status'] === 1) { ?>
+        <?php var_dump($user_name); ?>
+        <?php if ($value['item_status'] === 1 || $user_id === 1) { ?>
             <h2><?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?></h2>
             <div class = "item_flex">
                 <img class = "item_img" src = "<?php print $item_img_dir . $value['item_img']; ?>">

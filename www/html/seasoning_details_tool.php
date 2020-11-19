@@ -39,9 +39,13 @@ try {
     $dbh = new PDO($dsn, $username, $password, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8mb4'));
     $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-      
+
+    
+
+
     // 商品情報の変更
     if (isset($_POST['update_post']) === true) {
+        
         // 商品名の変更
         if (isset($_POST['update_item_name']) === true) {
             $update_item_name = $_POST['update_item_name'];
@@ -55,6 +59,11 @@ try {
         }
 
         // 画像の変更
+        if (isset($_POST['item_img']) === true) {
+            $update_item_img = $_POST['item_img'];
+        }
+
+        $new_item_img = "";
         // if (isset($_POST['update_item_img']) === true) {
             // HTTP POST でファイルがアップロードされたかどうかチェック
             if (is_uploaded_file($_FILES['update_item_img']['tmp_name']) === true) {
@@ -63,25 +72,25 @@ try {
                 // 指定の拡張子であるかどうかチェック
                 if ($extension === 'jpg' || $extension === 'jpeg' || $extension === 'png') {
                     // 保存する新しいファイル名の生成(ユニークな値を設定する)
-                    $update_item_img = sha1(uniqid(mt_rand(), true)). '.' . $extension;
+                    $new_item_img = sha1(uniqid(mt_rand(), true)). '.' . $extension;
                     // 同名ファイルが存在しているかチェック
-                    if (is_file($img_dir . $update_item_img) !== true) {
+                    if (is_file($img_dir . $new_item_img) !== true) {
                         
-                        $sql = 'UPDATE ec_item_master
-                                SET item_img = ?
-                                WHERE ec_item_master.item_id = ?';
+                        // $sql = 'UPDATE ec_item_master
+                        //         SET item_img = ?
+                        //         WHERE ec_item_master.item_id = ?';
             
-                        // SQL文を実行する準備
-                        $stmt = $dbh->prepare($sql);
-                        $stmt->bindvalue(1, $update_item_img, PDO::PARAM_STR);
-                        $stmt->bindvalue(2, $item_id, PDO::PARAM_INT);
-                        // SQLを実行
-                        $stmt->execute();
+                        // // SQL文を実行する準備
+                        // $stmt = $dbh->prepare($sql);
+                        // $stmt->bindvalue(1, $update_item_img, PDO::PARAM_STR);
+                        // $stmt->bindvalue(2, $item_id, PDO::PARAM_INT);
+                        // // SQLを実行
+                        // $stmt->execute();
                         
-                        echo '画像を変更しました。';
+                        // echo '画像を変更しました。';
 
                         // アップロードされたファイルを指定ディレクトリに移動して保存
-                        if (move_uploaded_file($_FILES['update_item_img']['tmp_name'], $img_dir . $update_item_img) !== true) {
+                        if (move_uploaded_file($_FILES['update_item_img']['tmp_name'], $img_dir . $new_item_img) !== true) {
                             $err_msg[] = 'ファイルアップロードに失敗しました';
                         }
                     } else {
@@ -218,57 +227,69 @@ try {
         }             
 
         if (count($err_msg) === 0) {
-            // $sql = 'UPDATE ec_item_master
-            //         JOIN ec_item_stock ON ec_item_master.item_id = ec_item_stock.item_id
-            //         JOIN ec_item_details ON ec_item_master.item_id = ec_item_details.item_id
-            //         SET item_name = ?, item_img = ?, price = ?, item_comment = ?, stock = ?, item_status = ?,
-            //             brand = ?, maker = ?, country = ?, material = ?, width = ?, depth = ?, height = ?, weight = ?
-            //         WHERE ec_item_master.item_id = ?';
-    
-            // // SQL文を実行する準備
-            // $stmt = $dbh->prepare($sql);
-            // $stmt->bindvalue(1, $update_item_name, PDO::PARAM_STR);
-            // $stmt->bindvalue(2, $update_item_img, PDO::PARAM_STR);
-            // $stmt->bindvalue(3, $update_price, PDO::PARAM_INT);
-            // $stmt->bindvalue(4, $update_item_comment, PDO::PARAM_STR);
-            // $stmt->bindvalue(5, $update_stock, PDO::PARAM_INT);
-            // $stmt->bindValue(6, $change_item_status, PDO::PARAM_INT);
-            // $stmt->bindvalue(7, $update_brand, PDO::PARAM_STR);
-            // $stmt->bindvalue(8, $update_maker, PDO::PARAM_STR);
-            // $stmt->bindvalue(9, $update_country, PDO::PARAM_STR);
-            // $stmt->bindvalue(10, $update_material, PDO::PARAM_STR);
-            // $stmt->bindvalue(11, $update_width, PDO::PARAM_INT);
-            // $stmt->bindvalue(12, $update_depth, PDO::PARAM_INT);
-            // $stmt->bindvalue(13, $update_height, PDO::PARAM_INT);
-            // $stmt->bindvalue(14, $update_weight, PDO::PARAM_INT); 
-            // $stmt->bindvalue(15, $item_id, PDO::PARAM_INT);
-
+            if ($new_item_img !== "") {
+                $update_item_img = $new_item_img;
+            }
             $sql = 'UPDATE ec_item_master
                     JOIN ec_item_stock ON ec_item_master.item_id = ec_item_stock.item_id
                     JOIN ec_item_details ON ec_item_master.item_id = ec_item_details.item_id
-                    SET item_name = ?, price = ?, item_comment = ?, stock = ?, item_status = ?,
+                    SET item_name = ?, item_img = ?, price = ?, item_comment = ?, stock = ?, item_status = ?,
                         brand = ?, maker = ?, country = ?, material = ?, width = ?, depth = ?, height = ?, weight = ?
                     WHERE ec_item_master.item_id = ?';
-            
+    
             // SQL文を実行する準備
             $stmt = $dbh->prepare($sql);
             $stmt->bindvalue(1, $update_item_name, PDO::PARAM_STR);
-            $stmt->bindvalue(2, $update_price, PDO::PARAM_INT);
-            $stmt->bindvalue(3, $update_item_comment, PDO::PARAM_STR);
-            $stmt->bindvalue(4, $update_stock, PDO::PARAM_INT);
-            $stmt->bindValue(5, $change_item_status, PDO::PARAM_INT);
-            $stmt->bindvalue(6, $update_brand, PDO::PARAM_STR);
-            $stmt->bindvalue(7, $update_maker, PDO::PARAM_STR);
-            $stmt->bindvalue(8, $update_country, PDO::PARAM_STR);
-            $stmt->bindvalue(9, $update_material, PDO::PARAM_STR);
-            $stmt->bindvalue(10, $update_width, PDO::PARAM_INT);
-            $stmt->bindvalue(11, $update_depth, PDO::PARAM_INT);
-            $stmt->bindvalue(12, $update_height, PDO::PARAM_INT);
-            $stmt->bindvalue(13, $update_weight, PDO::PARAM_INT); 
-            $stmt->bindvalue(14, $item_id, PDO::PARAM_INT);
+            $stmt->bindvalue(2, $update_item_img, PDO::PARAM_STR);
+            $stmt->bindvalue(3, $update_price, PDO::PARAM_INT);
+            $stmt->bindvalue(4, $update_item_comment, PDO::PARAM_STR);
+            $stmt->bindvalue(5, $update_stock, PDO::PARAM_INT);
+            $stmt->bindValue(6, $change_item_status, PDO::PARAM_INT);
+            $stmt->bindvalue(7, $update_brand, PDO::PARAM_STR);
+            $stmt->bindvalue(8, $update_maker, PDO::PARAM_STR);
+            $stmt->bindvalue(9, $update_country, PDO::PARAM_STR);
+            $stmt->bindvalue(10, $update_material, PDO::PARAM_STR);
+            $stmt->bindvalue(11, $update_width, PDO::PARAM_INT);
+            $stmt->bindvalue(12, $update_depth, PDO::PARAM_INT);
+            $stmt->bindvalue(13, $update_height, PDO::PARAM_INT);
+            $stmt->bindvalue(14, $update_weight, PDO::PARAM_INT); 
+            $stmt->bindvalue(15, $item_id, PDO::PARAM_INT);
+
+            // $sql = 'UPDATE ec_item_master
+            //         JOIN ec_item_stock ON ec_item_master.item_id = ec_item_stock.item_id
+            //         JOIN ec_item_details ON ec_item_master.item_id = ec_item_details.item_id
+            //         SET item_name = ?, price = ?, item_comment = ?, stock = ?, item_status = ?,
+            //             brand = ?, maker = ?, country = ?, material = ?, width = ?, depth = ?, height = ?, weight = ?
+            //         WHERE ec_item_master.item_id = ?';
+            
+            // // SQL文を実行する準備
+            // $stmt = $dbh->prepare($sql);
+            // $stmt->bindvalue(1, $update_item_name, PDO::PARAM_STR);
+            // $stmt->bindvalue(2, $update_price, PDO::PARAM_INT);
+            // $stmt->bindvalue(3, $update_item_comment, PDO::PARAM_STR);
+            // $stmt->bindvalue(4, $update_stock, PDO::PARAM_INT);
+            // $stmt->bindValue(5, $change_item_status, PDO::PARAM_INT);
+            // $stmt->bindvalue(6, $update_brand, PDO::PARAM_STR);
+            // $stmt->bindvalue(7, $update_maker, PDO::PARAM_STR);
+            // $stmt->bindvalue(8, $update_country, PDO::PARAM_STR);
+            // $stmt->bindvalue(9, $update_material, PDO::PARAM_STR);
+            // $stmt->bindvalue(10, $update_width, PDO::PARAM_INT);
+            // $stmt->bindvalue(11, $update_depth, PDO::PARAM_INT);
+            // $stmt->bindvalue(12, $update_height, PDO::PARAM_INT);
+            // $stmt->bindvalue(13, $update_weight, PDO::PARAM_INT); 
+            // $stmt->bindvalue(14, $item_id, PDO::PARAM_INT);
             // SQLを実行
             $stmt->execute();            
             echo '商品情報を変更しました。';
+
+            // 商品画面にリダイレクト
+            
+        } else {
+            if ($new_item_img !== "") {
+                if(file_exists($img_dir . $new_item_img)) {
+                    unlink($img_dir . $new_item_img);
+                }
+            }        
         }
     }
     
@@ -396,6 +417,7 @@ try {
     <p>商品名(12文字以内):<input type = "text" name = "update_item_name" value = "<?php print htmlspecialchars($item_details['item_name'], ENT_QUOTES, 'utf-8'); ?>">
     <p>画像:</P>
         <img src = "<?php print $img_dir . $item_details['item_img']; ?>">
+        <input type = "hidden" name = "item_img" value = "<?php print $item_details['item_img']; ?>">
         <input type = "file" name = "update_item_img">
     <p>価格:<input type = "text" class = "wd100" name = "update_price" value = "<?php print htmlspecialchars($item_details['price'], ENT_QUOTES, 'utf-8'); ?>">円</p>
     <p>商品の詳細(98文字以内):</p>
