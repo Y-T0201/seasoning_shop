@@ -621,7 +621,7 @@ if (isset($_POST['cart_post']) === true) {
     <?php } ?>
     <p class = "success"><?php print $success; ?></p>
     <br>
-    <?php if ($recipe_details['recipe_status'] === 1) { ?>
+    <?php if ($recipe_details['recipe_status'] === 1 || $user_id === 1) { ?>
         <h2><?php print htmlspecialchars ($recipe_details['recipe_name'], ENT_QUOTES, 'utf-8'); ?></h2>
         <div class = "recipe_flex">
             <img class = "recipe_img" src = "<?php print $recipe_img_dir . $recipe_details['recipe_img']; ?>">
@@ -668,7 +668,7 @@ if (isset($_POST['cart_post']) === true) {
     <table class = "mg125">
         <tr>
         <?php foreach ($data as $value) { ?>
-            <?php if ($value['item_status'] === 1 || $user_id === "admin") { ?>
+            <?php if ($value['item_status'] === 1 || $user_id === 1) { ?>
                 <td class = "list">
                     <div class = "flex">
                         <form action = "seasoning_details.php" method = "get">

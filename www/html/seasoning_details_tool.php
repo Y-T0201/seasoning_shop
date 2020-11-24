@@ -256,7 +256,12 @@ try {
             $stmt->bindvalue(15, $item_id, PDO::PARAM_INT);
 
             // SQLを実行
-            $stmt->execute();            
+            $stmt->execute();
+            
+            if(file_exists($img_dir . $_POST['item_img'])) {
+                unlink($img_dir . $_POST['item_img']);
+            } 
+
             echo '商品情報を変更しました。';
 
             // 商品画面にリダイレクト
