@@ -386,14 +386,10 @@ try {
         width: 1026px;
     }
    
-    .item_table, .list {
+    .item_table, .list, .item_flex {
        background-color: #FFFFFF;
-   }
-
-    .item_comment {
-        background-color: #FFFFF0;
     }
-    
+
     .right {   
         position: relative;
         left: 930px;
@@ -403,7 +399,7 @@ try {
         width: 1000px;
     }
     
-    .item_table, .item_th, .item_td {
+    .item_table, .item_th, .item_td, .item_flex {
         border-collapse: collapse;
         border: solid 1px;
     }
@@ -468,6 +464,10 @@ try {
         font-size: 16px;
     }
     
+    .price {
+        font-size: 18px;
+    }
+
     .item_comment {
         padding: 20px;
         font-size: 20px;
@@ -648,7 +648,6 @@ try {
     <p class = "success"><?php print $success; ?></p>
     <br>
     <?php foreach ($data as $value) { ?>
-        <?php var_dump($user_name); ?>
         <?php if ($value['item_status'] === 1 || $user_id === 1) { ?>
             <h2><?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?></h2>
             <div class = "item_flex">

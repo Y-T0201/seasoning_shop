@@ -254,7 +254,7 @@ try {
     <meta charset = "utf-8">
     <title>調味料一覧</title>
     <style>
-    body, h2, h3, .success, .alert {
+    body, h2, h3, .success, .alert, .item_ul {
         margin-left: auto;
         margin-right: auto;
     }
@@ -268,22 +268,38 @@ try {
     }
     
     h2, h3, .success, .alert {
-        width: 1026px;
+        width: 1040px;
         
     }
     
     .list {
-        /* margin-left: 0.5px;
-        margin-top: 0.5px; */
+        margin-left: 5px;
+        margin-top: 5px;
         width: 500px;
-        height: 250px;
+        height: 260px;
         border: solid 1px;
         padding: 10px;
         display: inline-block;
-        border-collapse: collapse;
         background-color: #ffffff;
+        list-style-type: none;  
+        /* display:table-cell;  */
+        /* border-spacing: none;
+        border-collapse: collapse;  */
         /*margin: 0px 0px 0px 100px;*/
     }
+
+    /* ul, li:nth-child(even){
+        border-spacing: none;
+        border-collapse: collapse; 
+        float:left;
+    }
+
+    ul, li:nth-child(odd){
+        border-spacing: none;
+        border-collapse: collapse; 
+        float:left;
+        clear:left;
+    } */
     
     h3, .cart_price {
         background-color: #76A44A;
@@ -294,9 +310,11 @@ try {
         color: #FFFFFF;
     }
     
-    .mg125 {
-        margin-left: 100px;
-        border-collapse: collapse;
+    .item_ul {
+        /* margin-left: 5px; */
+        width: 1100px;
+        /* border-spacing: none;
+        border-collapse: collapse;  */
     }
     
     .flex, .cart_flex, .flex_mypage, .flex_recipe, .top_flex {
@@ -475,11 +493,10 @@ try {
     <br>
     <h2>調味料の新着一覧</h2>
     <h3>調味料</h3>
-    <table class = "mg125">
-        <tr>
+    <ul class = "item_ul">
         <?php foreach ($data as $value) { ?>
             <?php if ($value['item_status'] === 1) { ?>
-                <td class = "list">
+                <li class = "list">
                     <div class = "flex">
                         <!--getフォームでxyが送信される-->
                         <form action = "seasoning_details.php" method = "get">
@@ -512,11 +529,10 @@ try {
                             </form>                          
                         <?php } ?>
                     </div>
-                </td>
+                </li>
             <?php } ?>
         <?php } ?>
-        </tr>
-    </table>
+    </ul>
    </main>
 </body>
 </html>

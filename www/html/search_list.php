@@ -367,7 +367,7 @@ try {
                     LEFT JOIN ec_user_item ON ec_item_master.item_id = ec_user_item.item_id
                     WHERE 1 = 1 ';
 
-
+            $array = []; 
             // キーワードが入力されているときはwhere以下を組み合わせる
             if (strlen($seach_item) > 0) {
                 // 受け取ったキーワードの全角スペースを変換する
@@ -375,12 +375,17 @@ try {
                 
                 // キーワードを空白で分割する
                 $array = explode(" ", $seach_items);
+                var_dump($array);
                 
                 // 分割された個々のキーワードをSQLの条件where句に反映する
                 // $where = "WHERE ";
                 
+                // for ($i = 0; $i <count($array);$i++) {
+                //     $sql .= "and (ec_item_master.item_name LIKE '%$array[$i]%' or ec_item_master.item_comment LIKE '%$array[$i]%') ";
+                    
+                // }
                 for ($i = 0; $i <count($array);$i++) {
-                    $sql .= "and (ec_item_master.item_name LIKE '%$array[$i]%' or ec_item_master.item_comment LIKE '%$array[$i]%') ";
+                    $sql .= "and (ec_item_master.item_name LIKE ? or ec_item_master.item_comment LIKE ?) ";
                     
                 }
             }
@@ -388,10 +393,11 @@ try {
             $sql .= 'ORDER BY ec_item_master.item_id DESC';
             
             $statement = $dbh->prepare($sql);
-            
-            $s_item = '%'.$seach_item.'%';
-            $statement->bindValue(':item_name',$s_item, PDO::PARAM_STR);
-            $statement->bindValue(':item_comment',$s_item, PDO::PARAM_STR);
+            for ($i = 0; $i <count($array);$i++) {
+                $s_item = "%$array[$i]%";
+                $statement->bindValue($i*2+1,$s_item, PDO::PARAM_STR);
+                $statement->bindValue($i*2+2,$s_item, PDO::PARAM_STR);
+            }
             $statement->execute();
             
             $rows = $statement->fetchAll();
