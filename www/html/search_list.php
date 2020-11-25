@@ -367,7 +367,7 @@ try {
                     LEFT JOIN ec_user_item ON ec_item_master.item_id = ec_user_item.item_id
                     WHERE 1 = 1 ';
 
-            $array = []; 
+            $array = [];
             // キーワードが入力されているときはwhere以下を組み合わせる
             if (strlen($seach_item) > 0) {
                 // 受け取ったキーワードの全角スペースを変換する
@@ -375,7 +375,6 @@ try {
                 
                 // キーワードを空白で分割する
                 $array = explode(" ", $seach_items);
-                var_dump($array);
                 
                 // 分割された個々のキーワードをSQLの条件where句に反映する
                 // $where = "WHERE ";
@@ -410,22 +409,38 @@ try {
                     FROM ec_recipe_master
                     JOIN ec_item_master ON ec_recipe_master.item_id = ec_item_master.item_id
                     LEFT JOIN ec_user_recipe ON ec_recipe_master.recipe_id = ec_user_recipe.recipe_id
-                    WHERE recipe_name LIKE :recipe_name OR recipe_comment LIKE :recipe_comment OR item_name LIKE :item_name
-                    ORDER BY ec_recipe_master.recipe_id DESC';
-                    
+                    WHERE 1 = 1 ';
+
+            $recipe_array = [];
+            // キーワードが入力されているときはwhere以下を組み合わせる
+            if (strlen($seach_item) > 0) {
+                // 受け取ったキーワードの全角スペースを変換する
+                $seach_items = str_replace("　", " ", $seach_item);
+                
+                // キーワードを空白で分割する
+                $recipe_array = explode(" ", $seach_items);
+                
+                // 分割された個々のキーワードをSQLの条件where句に反映する
+                for ($j = 0; $j <count($recipe_array);$j++) {
+                    $sql .= "and (ec_recipe_master.recipe_name LIKE ? or ec_recipe_master.recipe_comment LIKE ? or ec_item_master.item_name LIKE ?) ";
+                }
+            }
+
+            $sql .= 'ORDER BY ec_recipe_master.recipe_id DESC';
+
             $statement = $dbh->prepare($sql);
-    
-            $s_recipe = '%'.$seach_item.'%';
-            $statement->bindValue(':recipe_name',$s_recipe, PDO::PARAM_STR);
-            $statement->bindValue(':recipe_comment',$s_recipe, PDO::PARAM_STR);
-            $statement->bindValue(':item_name',$s_recipe, PDO::PARAM_STR);            
+            for ($j = 0; $j <count($array);$j++) {
+                $s_recipe = "%$recipe_array[$j]%";
+                $statement->bindValue($j*3+1,$s_recipe, PDO::PARAM_STR);
+                $statement->bindValue($j*3+2,$s_recipe, PDO::PARAM_STR);
+                $statement->bindValue($j*3+3,$s_recipe, PDO::PARAM_STR); 
+            }               
             $statement->execute();
             
             $rows = $statement->fetchAll();
             
             foreach ($rows as $row) {
-                $r_recipe[] = $row;
-                    
+                $r_recipe[] = $row;       
             }
         // }    
     }
@@ -465,7 +480,7 @@ try {
     <meta charset = "utf-8">
     <title>調味料一覧</title>
     <style>
-    body, h2, h3, .success, .alert {
+    body, h2, h3, .success, .alert, .item_ul, .recipe_ul {
         margin-left: auto;
         margin-right: auto;
     }
@@ -479,18 +494,19 @@ try {
     }
     
     h2, h3, .success, .alert {
-        width: 1026px;
+        width: 1040px;
     }
     
     .list {
-        margin-left: 0.5px;
-        margin-top: 0.5px;
+        margin-left: 5px;
+        margin-top: 5px;
         width: 500px;
-        height: 250px;
+        height: 260px;
         border: solid 1px;
         padding: 10px;
         display: inline-block;
-        /*margin: 0px 0px 0px 100px;*/
+        background-color: #ffffff;
+        list-style-type: none; 
     }
     
     h3, .cart_price {
@@ -502,8 +518,8 @@ try {
         color: #FFFFFF;
     }
     
-    .mg100 {
-        margin-left: 100px;
+    .item_ul, .recipe_ul {
+        width: 1100px;
     }
     
     .flex, .cart_flex, .flex_mypage, .flex_recipe, .top_flex {
@@ -645,6 +661,10 @@ try {
         right: 25px;
     }
     
+    .item_name, .recipe_name {
+        font-weight: bold;
+    }
+
     .heart, .recipe_heart {
          width: 25px;
     }
@@ -704,11 +724,10 @@ try {
     <h2>「<?php print $seach_item ?>」の検索結果</h2>
     <?php if ($keyword == 'item') { ?>
         <h3>調味料</h3>
-        <table class = "mg100">
-            <tr>
+        <ul class = "item_ul">
             <?php foreach ($r_item as $value) { ?>
                 <?php if ($value['item_status'] === 1) { ?>
-                    <td class = "list">
+                    <li class = "list">
                         <div class = "flex">
                         <form action = "seasoning_details.php" method = "get">
                             <input class = "item_img" type="image" src= "<?php print $item_img_dir . $value['item_img']; ?>">
@@ -717,7 +736,7 @@ try {
                         <p class = "mg10"><?php print htmlspecialchars ($value['item_comment'], ENT_QUOTES, 'utf-8'); ?></p>
                         </div>
                         <div class = "flex">
-                            <p>調味料名:<?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
+                            <p class = "item_name">調味料名:<?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
                             <!--税率8%計算-->
                             <p class = "mg50">小計<?php print htmlspecialchars (number_format(round($value['price'] * 1.08)), ENT_QUOTES, 'utf-8'); ?>円（税込み）</p>
                         </div>
@@ -741,18 +760,16 @@ try {
                                 </form>
                             </div>
                         <?php } ?>
-                    </td>
+                    </li>
                 <?php } ?>
             <?php } ?>
-            </tr>
-        </table>
+        </ul>
     <?php } else if ($keyword == 'recipe') { ?>
         <h3>レシピ</h3>
-        <table class = "mg100">
-            <tr>
+        <ul class = "recipe_ul">
             <?php foreach ($r_recipe as $r_value) { ?>
                 <?php if ($r_value['recipe_status'] === 1) { ?>
-                    <td class = "list">
+                    <li class = "list">
                         <div class = "flex">
                         <form method = "post">
                             <?php if ($r_value['user_recipe_id'] === null) { ?>                    
@@ -773,19 +790,17 @@ try {
                             <p class ="mg10"><?php print htmlspecialchars ($r_value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></p>
                         </div>
                         </a>
-                        <p class = "center">調味料名:<?php print htmlspecialchars ($r_value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
-                    </td>
+                        <p>調味料名:<?php print htmlspecialchars ($r_value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
+                    </li>
                 <?php } ?>
             <?php } ?>
-            </tr>
-        </table>
+        </ul>
     <?php } else if ($keyword == 'all') { ?>
         <h3>調味料</h3>
-        <table class = "mg100">
-            <tr>
+        <ul class = "item_ul">
             <?php foreach ($r_item as $value) { ?>
                 <?php if ($value['item_status'] === 1) { ?>
-                    <td class = "list">
+                    <li class = "list">
                         <div class = "flex">
                             <form action = "seasoning_details.php" method = "get">
                                 <input class = "item_img" type="image" src= "<?php print $item_img_dir . $value['item_img']; ?>">
@@ -794,7 +809,7 @@ try {
                             <p class ="mg10"><?php print htmlspecialchars ($value['item_comment'], ENT_QUOTES, 'utf-8'); ?></p>
                         </div>
                         <div class = "flex">
-                            <p>調味料名:<?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
+                            <p class = "item_name">調味料名:<?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
                             <!--税率8%計算-->
                             <p class = "mg50">小計<?php print htmlspecialchars (number_format(round($value['price'] * 1.08)), ENT_QUOTES, 'utf-8'); ?>円（税込み）</p>
                         </div>
@@ -818,17 +833,15 @@ try {
                                 </form>    
                             <?php } ?>
                         </div>
-                    </td>
+                    </li>
                 <?php } ?>
             <?php } ?>
-            </tr>
-        </table>
+        </ul>
         <h3>レシピ</h3>
-        <table class = "mg100">
-            <tr>
+        <ul class = "recipe_ul">
             <?php foreach ($r_recipe as $r_value) { ?>
                 <?php if ($r_value['recipe_status'] === 1) { ?>
-                    <td class = "list">
+                    <li class = "list">
                         <div class = "flex">
                         <form method = "post">
                             <?php if ($r_value['user_recipe_id'] === null) { ?>                    
@@ -849,12 +862,11 @@ try {
                             <p class ="mg10"><?php print htmlspecialchars ($r_value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></p>
                         </div>
                         </a>
-                        <p class = "center">調味料名:<?php print htmlspecialchars ($r_value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
-                    </td>
+                        <p>調味料名:<?php print htmlspecialchars ($r_value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
+                    </li>
                 <?php } ?>
             <?php } ?>
-            </tr>
-        </table>    
+        </ul>    
     <?php } ?>
    </main>
 </body>

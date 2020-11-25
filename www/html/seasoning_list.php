@@ -434,6 +434,10 @@ try {
         background-color: red;
         padding-left: 10px;
     }
+
+    .item_name {
+        font-weight: bold;
+    }
     
     .mg10 {
         margin: 0px 10px;
@@ -506,7 +510,7 @@ try {
                         <p class = "mg10"><?php print htmlspecialchars ($value['item_comment'], ENT_QUOTES, 'utf-8'); ?></p>
                     </div>
                     <div class = "flex">
-                        <p>調味料名:<?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
+                        <p class = "item_name">調味料名:<?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
                         <!--税率8%計算-->
                         <p class = "mg50">小計<?php print htmlspecialchars (number_format(round($value['price'] * 1.08)), ENT_QUOTES, 'utf-8'); ?>円（税込み）</p>
                     </div>
