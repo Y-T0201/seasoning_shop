@@ -1,8 +1,8 @@
 <?php
-$host = 'localhost';
+$host = 'mysql';
 $username = 'root';
-$password = 'nRlkY30ag';
-$dbname = 'ec_site';
+$password = 'root';
+$dbname = 'seasoning_shop';
 $charset = 'utf8';
 
 $img_dir = './item_img/'; // アップロードした画像ファイルの保存ディレクトリ
@@ -192,6 +192,10 @@ try {
     
     table {
         border-collapse: collapse;
+    }
+
+    table, .flex {
+        background-color: #FFFFFF;
     }
     
     .flex, .cart_flex, .flex_mypage, .top_flex {
