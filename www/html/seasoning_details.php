@@ -600,6 +600,17 @@ try {
         margin-left:5px;
     }
     
+    .recipe_details {
+        position: relative;
+        top: 15px;
+        left: 395px;
+    }
+
+    .recipe_item_name {
+        position: relative;
+        right: 90px;
+    }
+    
     </style>
 </head>
 <body>
@@ -733,7 +744,13 @@ try {
                         </form>
                         <p class ="mg10"><?php print htmlspecialchars ($r_value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></p>
                     </div>
-                    <p class = "center">調味料名:<?php print htmlspecialchars ($r_value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
+                    <div class = "flex">
+                        <form action = "recipe_details.php" method = "get">
+                            <input class = "recipe_details" type = "submit" name = "details" value = "▶詳しく見る">
+                            <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($r_value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
+                        </form>
+                        <p class = "recipe_item_name">調味料名:<?php print htmlspecialchars ($r_value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
+                    </div>
                 </li>
             <?php } ?>
         <?php } ?>

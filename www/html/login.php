@@ -128,7 +128,10 @@ if (isset($_POST['login']) === true ) {
     }
     
     .red {
-        background-color: red;
+        background-color: #FFFFFF;
+        border: solid 1px ;
+        border-color: red;
+        color: red;
         height: 25px;
         width: 50px;
         text-align: center;
