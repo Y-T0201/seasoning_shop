@@ -606,17 +606,21 @@ try {
         margin-left: 30px;         
     }
     
+    .item_details {
+        margin-left: 250px;
+    }
+
     .cart-submit, .sold_out {
-        margin-left: 360px;
+        margin-left: 20px;
     }
     
     .sold_out {
-        width: 100px;
+        width: 120px;
+        height: 25px;
         background-color: red;
         text-align: center;
         color: #FFFFFF;
-        margin-top: 3px;
-        margin-left: 370px;
+        margin-top: 0px;
     }
     
     .link_top, .recipe_link, .item_link {
@@ -672,6 +676,17 @@ try {
     .recipe_heart {
         position: relative;
         left: 470px;
+    }
+
+    .recipe_details {
+        position: relative;
+        top: 15px;
+        left: 395px;
+    }
+
+    .recipe_item_name {
+        position: relative;
+        right: 90px;
     }
     
     </style>
@@ -750,6 +765,10 @@ try {
                                 <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
                                 <input type = "hidden" name = "heart" value = "item_heart">                    
                             </form>
+                            <form action = "seasoning_details.php" method = "get">
+                                <input class = "item_details" type = "submit" name = "details" value = "▶詳しく見る">
+                                <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+                            </form>
                             <?php if ($value['stock'] === 0) { ?>
                                 <P class = "sold_out">売り切れ</P>
                             <?php } else if ($value['stock'] > 0) { ?>
@@ -790,7 +809,13 @@ try {
                             <p class ="mg10"><?php print htmlspecialchars ($r_value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></p>
                         </div>
                         </a>
-                        <p>調味料名:<?php print htmlspecialchars ($r_value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
+                        <div class = "flex">
+                            <form action = "recipe_details.php" method = "get">
+                                <input class = "recipe_details" type = "submit" name = "details" value = "▶詳しく見る">
+                                <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($r_value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
+                            </form>
+                            <p class = "recipe_item_name">調味料名:<?php print htmlspecialchars ($r_value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
+                        </div>
                     </li>
                 <?php } ?>
             <?php } ?>
@@ -822,6 +847,10 @@ try {
                                 <?php } ?>
                                 <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
                                 <input type = "hidden" name = "heart" value = "item_heart">                    
+                            </form>
+                            <form action = "seasoning_details.php" method = "get">
+                                <input class = "item_details" type = "submit" name = "details" value = "▶詳しく見る">
+                                <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
                             </form>
                             <?php if ($value['stock'] === 0) { ?>
                                 <P class = "sold_out">売り切れ</P>
@@ -862,7 +891,13 @@ try {
                             <p class ="mg10"><?php print htmlspecialchars ($r_value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></p>
                         </div>
                         </a>
-                        <p>調味料名:<?php print htmlspecialchars ($r_value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
+                        <div class = "flex">
+                            <form action = "recipe_details.php" method = "get">
+                                <input class = "recipe_details" type = "submit" name = "details" value = "▶詳しく見る">
+                                <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($r_value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
+                            </form>
+                            <p class = "recipe_item_name">調味料名:<?php print htmlspecialchars ($r_value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
+                        </div>
                     </li>
                 <?php } ?>
             <?php } ?>

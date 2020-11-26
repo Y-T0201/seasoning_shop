@@ -516,18 +516,22 @@ if (isset($_POST['cart_post']) === true) {
     .btm_logout {
         margin-left: 30px;         
     }
-    
+
+    .item_details {
+        margin-left: 250px;
+    }
+
     .cart-submit, .sold_out {
-        margin-left: 360px;
+        margin-left: 20px;
     }
     
     .sold_out {
-        width: 100px;
+        width: 120px;
+        height: 25px;
         background-color: red;
         text-align: center;
         color: #FFFFFF;
-        margin-top: 3px;
-        margin-left: 370px;
+        margin-top: 0px;
     }
     
     .link_top, .recipe_link, .item_link {
@@ -731,7 +735,11 @@ if (isset($_POST['cart_post']) === true) {
                             <?php } ?>
                             <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
                             <input type = "hidden" name = "heart" value = "item_heart">                    
-                        </form>    
+                        </form>
+                        <form action = "seasoning_details.php" method = "get">
+                            <input class = "item_details" type = "submit" name = "details" value = "▶詳しく見る">
+                            <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+                        </form>                            
                         <?php if ($value['stock'] === 0) { ?>
                             <P class = "sold_out">売り切れ</P>
                         <?php } else if ($value['stock'] > 0) { ?>
