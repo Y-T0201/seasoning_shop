@@ -8,6 +8,7 @@ $charset = 'utf8';
 $img_dir = './recipe_img/'; // アップロードした画像ファイルの保存ディレクトリ
 $err_msg = array();
 $data = array();
+$success = array();
 $name = array();
 
 // MySQL用のDSN文字列
@@ -177,7 +178,7 @@ try {
                 unlink($img_dir . $_POST['recipe_img']);
             } 
 
-            echo 'データが登録できました';
+            $success[] = 'データが登録できました';
         } else {
             if ($new_recipe_img !== "") {
                 if(file_exists($img_dir . $new_recipe_img)) {
@@ -231,12 +232,7 @@ try {
     <title>はじめての調味料　管理ページ</title>
     <style>
         table, .flex, .link {
-            width: 1300px;
-        }
-
-        .flex, .link, .recipe_change, h2 {
-            margin-left: auto;
-            margin-right: auto;
+            width: 1400px;
         }
 
         .link {
@@ -260,14 +256,6 @@ try {
             width: 700px;
         }
         
-        body {
-            background-color: #FFFFE0;
-        }
-
-        .recipe_change {
-            background-color: #ffffff;
-        }
-
         textarea {
             width: 500px;
             height: 250px;
@@ -322,6 +310,14 @@ try {
             border: 0px none;
         }
 
+        .alert {
+            color: red;
+        }
+
+        .success {
+            color: blue;
+        }
+
         .flex {
             display: flex;
         }
@@ -347,9 +343,6 @@ try {
         <input class = "btm_logout" type = "submit" name = "btm_logout" value = "ログアウト">
     </form>
 </div>
-<?php foreach ($err_msg as $value) { ?>
-    <p><?php print $value; ?></p>
-<?php } ?>
 <div class = "link">
     <a class = "margin50" href = "seasoning_tool.php">調味料管理ページ</a>
     <a class = "margin50" href = "recipe_tool.php">レシピ管理ページ</a>
@@ -358,6 +351,12 @@ try {
     <a class = "margin50" href = "seasoning_list.php">ECサイト</a>
 </div>
 <h2>レシピ詳細の登録</h2>
+<?php foreach ($err_msg as $value) { ?>
+    <p class = "alert"><?php print htmlspecialchars($value, ENT_QUOTES, 'utf-8'); ?></p>
+<?php } ?>
+<?php foreach ($success as $value) { ?>
+    <p class = "success"><?php print htmlspecialchars($value, ENT_QUOTES, 'utf-8'); ?></p>
+<?php } ?>
 <form class = "recipe_change" method = "post" enctype = "multipart/form-data">
     <p>料理名(29文字以内):</p>
     <input class = "recipe_name" type = "text" name = "update_recipe_name" value = "<?php print htmlspecialchars($recipe_details['recipe_name'], ENT_QUOTES, 'utf-8'); ?>">

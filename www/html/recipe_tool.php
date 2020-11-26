@@ -7,6 +7,7 @@ $charset = 'utf8';
 
 $img_dir = './recipe_img/'; // アップロードした画像ファイルの保存ディレクトリ
 $err_msg = array();
+$success = array();
 $data = array();
 $name = array();
 
@@ -140,7 +141,7 @@ try {
 
                 // コミット処理
                 $dbh->commit();
-                echo 'データが登録できました';
+                $success[] = 'データが登録できました';
 
             } catch (PDOExeption $e) {
                 // ロールバック処理
@@ -158,162 +159,6 @@ try {
     }
     
     // 送られてきた非表示データに応じて処理を振り分ける。
-    
-    $update_recipe_img = '';
-    
-    if ($process_kind === 'update_recipe_img') {
-        // 画像の変更
-        // HTTP POST でファイルがアップロードされたかどうかチェック
-
-        if (is_uploaded_file($_FILES['update_recipe_img']['tmp_name']) === true) {
-            // 画像の拡張子を取得
-            $extension = pathinfo($_FILES['update_recipe_img']['name'], PATHINFO_EXTENSION);
-            // 指定の拡張子であるかどうかチェック
-            if ($extension === 'jpg' || $extension === 'jpeg' || $extension === 'png') {
-                // 保存する新しいファイル名の生成(ユニークな値を設定する)
-                $update_recipe_img = sha1(uniqid(mt_rand(), true)). '.' . $extension;
-                // 同名ファイルが存在しているかチェック
-                if (is_file($img_dir . $update_recipe_img) !== true) {
-                    // アップロードされたファイルを指定ディレクトリに移動して保存
-                    if (move_uploaded_file($_FILES['update_recipe_img']['tmp_name'], $img_dir . $update_recipe_img) !== true) {
-                        $err_msg[] = 'ファイルアップロードに失敗しました';
-                    }
-                } else {
-                    $err_msg[] = 'ファイルアップロードに失敗しました。再度お試しください。';
-                }
-            } else {
-                $err_msg[] = 'ファイル形式が異なります。画像ファイルはJPEG、またはPNGのみ利用可能です。';
-            }
-        } else {
-            $err_msg[] = 'ファイルを選択してください';
-        }
-    
-        if (isset($_POST['recipe_id']) === true) {
-            $id = $_POST['recipe_id'];
-        }
-    
-        // 画像の情報テーブルにデータを更新
-        if (count($err_msg) === 0) {
-            $sql = 'UPDATE ec_recipe_master
-                    SET recipe_img = ?, update_datetime = NOW()
-                    WHERE recipe_id = ?';
-            
-            // SQL文を実行する準備
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindvalue(1, $update_recipe_img, PDO::PARAM_STR);
-            $stmt->bindvalue(2, $id, PDO::PARAM_INT);
-            // SQLを実行
-            $stmt->execute();
-            
-            echo '画像の変更が成功しました。';   
-    
-        }
-    }
-    
-    $update_recipe_name = '';
-    
-    if ($process_kind === 'update_recipe_name') {
-        // 商品名の変更
-        if (isset($_POST['update_recipe_name']) === true) {
-            $update_recipe_name = $_POST['update_recipe_name'];
-            $update_recipe_name = str_replace(array(" "," "),"",$update_recipe_name);
-        }
-        
-        if (mb_strlen($update_recipe_name) === 0) {
-            $err_msg[] = '料理名を入力してください';
-        } else if (mb_strlen($update_recipe_name) > 29) {
-            $err_msg[] = '料理名は29文字以内で入力してください';
-        } 
-        
-        if (isset($_POST['recipe_id']) === true) {
-            $id = $_POST['recipe_id'];
-        }
-    
-        // 商品名の情報テーブルにデータを更新
-        if (count($err_msg) === 0) {
-            $sql = 'UPDATE ec_recipe_master
-                    SET recipe_name = ?, update_datetime = NOW()
-                    WHERE recipe_id = ?';
-            
-            // SQL文を実行する準備
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindvalue(1, $update_recipe_name, PDO::PARAM_STR);
-            $stmt->bindvalue(2, $id, PDO::PARAM_INT);
-            // SQLを実行
-            $stmt->execute();
-            
-            echo '料理名の変更が成功しました。';
-        }
-    }
-    
-   $update_item_id = '';
-   
-   if ($process_kind === 'update_item_id') {
-       // 調味料名の変更
-       if (isset($_POST['update_item_id']) === true) {
-            $update_item_id = $_POST['update_item_id'];
-        }       
-        
-        if ($update_item_id === '') {
-            $err_msg[] = '調味料を選択してください';
-        }
-        
-        if (isset($_POST['recipe_id']) === true) {
-            $id = $_POST['recipe_id'];
-        }
-        
-        // 商品の詳細の情報テーブルにデータを更新
-        if (count($err_msg) === 0) {
-            $sql = 'UPDATE ec_recipe_master
-                    SET item_id = ?, update_datetime = NOW()
-                    WHERE recipe_id = ?';
-            
-            // SQL文を実行する準備
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindvalue(1, $update_item_id, PDO::PARAM_INT);
-            $stmt->bindvalue(2, $id, PDO::PARAM_INT);
-            // SQLを実行
-            $stmt->execute();
-            
-            echo '調味料名の変更が成功しました。';
-        } 
-   }
-   
-    $update_recipe_comment = '';
-    
-    if ($process_kind === 'update_recipe_comment') {
-        // 商品詳細の変更
-        if (isset($_POST['update_recipe_comment']) === true) {
-            $update_recipe_comment = $_POST['update_recipe_comment'];
-            $update_recipe_comment = str_replace(array(" "," "),"",$update_recipe_comment);
-        }
-        
-        if (mb_strlen($update_recipe_comment) === 0) {
-            $err_msg[] = '料理の詳細を入力してください';
-        } else if (mb_strlen($update_recipe_comment) > 98) {
-            $err_msg[] = '詳細は98文字以内で入力してください';
-        }
-        
-        if (isset($_POST['recipe_id']) === true) {
-            $id = $_POST['recipe_id'];
-        }
-    
-        // 商品の詳細の情報テーブルにデータを更新
-        if (count($err_msg) === 0) {
-            $sql = 'UPDATE ec_recipe_master
-                    SET recipe_comment = ?, update_datetime = NOW()
-                    WHERE recipe_id = ?';
-            
-            // SQL文を実行する準備
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindvalue(1, $update_recipe_comment, PDO::PARAM_STR);
-            $stmt->bindvalue(2, $id, PDO::PARAM_INT);
-            // SQLを実行
-            $stmt->execute();
-            
-            echo '料理の詳細の変更が成功しました。';
-        }
-    }    
     
     $change_recipe_status = '';
     
@@ -343,7 +188,7 @@ try {
             // SQLを実行
             $stmt->execute();
             
-            echo 'ステータスの変更が成功しました';
+            $success[] = 'ステータスの変更が成功しました';
         }
     }
 
@@ -374,7 +219,7 @@ try {
                 unlink($img);
             }
             
-            echo '料理情報を削除しました';
+            $success[] = '料理情報を削除しました';
         }
     }
     
@@ -422,7 +267,7 @@ try {
     <title>はじめての調味料　管理ページ</title>
     <style>
         h2, table {
-            width: 1250px;
+            width: 1400px;
         }
     
         h2 {
@@ -468,6 +313,14 @@ try {
             width: 100px;
         }
         
+        .alert {
+            color: red;
+        }
+
+        .success {
+            color: blue;
+        }
+
         .flex {
             display: flex;
         }
@@ -489,15 +342,18 @@ try {
         <input class = "btm_logout" type = "submit" name = "btm_logout" value = "ログアウト">
     </form>
 </div>
-<?php foreach ($err_msg as $value) { ?>
-    <p><?php print $value; ?></p>
-<?php } ?>
 <a class = "margin50" href = "seasoning_tool.php">調味料管理ページ</a>
 <a class = "margin50" href = "recipe_tool.php">レシピ管理ページ</a>
 <a class = "margin50" href = "users_tool.php">ユーザー管理ページ</a>
 <a class = "margin50" href = "history_tool.php">購入履歴管理ページ</a>
 <a class = "margin50" href = "seasoning_list.php">ECサイト</a>
 <h2>レシピの登録</h2>
+<?php foreach ($err_msg as $value) { ?>
+    <p class = "alert"><?php print htmlspecialchars($value, ENT_QUOTES, 'utf-8'); ?></p>
+<?php } ?>
+<?php foreach ($success as $value) { ?>
+    <p class = "success"><?php print htmlspecialchars($value, ENT_QUOTES, 'utf-8'); ?></p>
+<?php } ?>
 <form method = "post" enctype = "multipart/form-data">
     <p>料理名(29文字以内):<input type = "text" name = "recipe_name"></p>
     <p>商品画像:<input type = "file" name = "recipe_img" ></p>

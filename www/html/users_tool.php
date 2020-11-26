@@ -63,7 +63,7 @@ try {
     <title>はじめての調味料　管理ページ</title>
     <style>
         h2, table {
-            width: 1250px;
+            width: 1400px;
         }
         
         h2 {
