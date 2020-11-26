@@ -302,14 +302,9 @@ try {
     <title>はじめての調味料　管理ページ</title>
     <style>
         table, .flex, .link {
-            width: 1300px;
+            width: 1400px;
         }
         
-        .flex, .link, .item_change, h2 {
-            margin-left: auto;
-            margin-right: auto;
-        }
-
         .link {
             padding: 0 0 10px 0;
             border-bottom: solid 1px;
@@ -329,14 +324,6 @@ try {
         
         .item_change, h2 {
             width: 700px;
-        }
-
-        body {
-            background-color: #F0F8FF;
-        }
-
-        .item_change {
-            background-color: #ffffff;
         }
 
         textarea {

@@ -231,12 +231,7 @@ try {
     <title>はじめての調味料　管理ページ</title>
     <style>
         table, .flex, .link {
-            width: 1300px;
-        }
-
-        .flex, .link, .recipe_change, h2 {
-            margin-left: auto;
-            margin-right: auto;
+            width: 1400px;
         }
 
         .link {
@@ -260,14 +255,6 @@ try {
             width: 700px;
         }
         
-        body {
-            background-color: #FFFFE0;
-        }
-
-        .recipe_change {
-            background-color: #ffffff;
-        }
-
         textarea {
             width: 500px;
             height: 250px;
