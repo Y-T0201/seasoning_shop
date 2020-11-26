@@ -170,7 +170,7 @@ try {
     <meta charset = "utf-8">
     <title>調味料一覧</title>
     <style>
-    body, h2, h3, .success, .alert {
+    body, h2, h3, .success, .alert, .recipe_ul {
         margin-left: auto;
         margin-right: auto;
     }
@@ -184,17 +184,19 @@ try {
     }
     
     h2, h3, .success, .alert {
-        width: 1026px;
+        width: 1040px;
     }
     
     .list {
-        margin-left: 0.5px;
-        margin-top: 0.5px;
+        margin-left: 5px;
+        margin-top: 5px;
         width: 500px;
-        height: 250px;
+        height: 260px;
         border: solid 1px;
         padding: 10px;
         display: inline-block;
+        background-color: #ffffff;
+        list-style-type: none;
         /*margin: 0px 0px 0px 100px;*/
     }
     
@@ -207,8 +209,8 @@ try {
         color: #FFFFFF;
     }
     
-    .mg100 {
-        margin-left: 100px;
+    .recipe_ul {
+        width: 1100px;
     }
     
     .flex, .cart_flex, .flex_mypage, .flex_recipe, .top_flex {
@@ -348,6 +350,7 @@ try {
         margin: 5px;
         position: relative;
         right: 25px;
+        font-weight: bold;
     }
     
     .heart, .recipe_heart {
@@ -408,11 +411,10 @@ try {
     <br>
     <h2>レシピの新着一覧</h2>
     <h3>レシピ</h3>
-    <table class = "mg100">
-        <tr>
+    <ul class = "recipe_ul">
         <?php foreach ($r_recipe as $r_value) { ?>
             <?php if ($r_value['recipe_status'] === 1) { ?>
-                <td class = "list">
+                <li class = "list">
                     <div class = "flex">
                        <form method = "post">
                             <?php if ($r_value['user_recipe_id'] === null) { ?>                    
@@ -433,11 +435,10 @@ try {
                         <p class ="mg10"><?php print htmlspecialchars ($r_value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></p>
                     </div>
                     <p class = "center">調味料名:<?php print htmlspecialchars ($r_value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
-                </td>
+                </li>
             <?php } ?>
         <?php } ?>
-        </tr>
-    </table>
+    </ul>
    </main>
 </body>
 </html>

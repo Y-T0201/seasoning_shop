@@ -437,7 +437,7 @@ try {
     <meta charset = "utf-8">
     <title>会員ページ</title>
     <style>
-    body, h2, h3, .success, .alert {
+    body, h2, h3, .success, .alert, .item_ul, .recipe_ul {
         margin-left: auto;
         margin-right: auto;
     }
@@ -451,19 +451,20 @@ try {
     }
     
     h2, h3, .success, .alert {
-        width: 1026px;
+        width: 1040px;
         
     }
     
     .list {
-        margin-left: 0.5px;
-        margin-top: 0.5px;
+        margin-left: 5px;
+        margin-top: 5px;
         width: 500px;
-        height: 250px;
+        height: 260px;
         border: solid 1px;
         padding: 10px;
         display: inline-block;
-        /*margin: 0px 0px 0px 100px;*/
+        background-color: #ffffff;
+        list-style-type: none; 
     }
     
     h3, .cart_price {
@@ -600,8 +601,8 @@ try {
         color: #000000;
     }
     
-    .mg100 {
-        margin-left: 100px;
+    .item_ul, .recipe_ul {
+        width: 1100px;
     }
     
     .mg50 {
@@ -619,6 +620,10 @@ try {
         right: 25px;
     }
     
+    .item_name, .recipe_name {
+        font-weight: bold;
+    }
+
     .heart, .recipe_heart {
          width: 25px;
     }
@@ -678,11 +683,10 @@ try {
     <br>
     <h2><?php print $user_name ?>様の会員ページ</h2>
     <h3>お気に入りのレシピ</h3>
-    <table class = "mg100">
-        <tr>
+    <ul class = "recipe_ul">
         <?php foreach ($heart_recipe as $value) { ?>
             <?php if ($value['recipe_status'] === 1) { ?>
-                <td class = "list">
+                <li class = "list">
                     <div class = "flex">
                        <form method = "post">
                             <?php if ($value['user_recipe_id'] === null) { ?>                    
@@ -703,17 +707,15 @@ try {
                         <p class ="mg10"><?php print htmlspecialchars ($value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></p>
                     </div>
                     <p class = "center">調味料名:<?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
-                </td>
+                </li>
             <?php } ?>
         <?php } ?>
-        </tr>
-    </table>
+    </ul>
     <h3>お気に入りの調味料</h3>
-    <table class = "mg100">
-        <tr>
+    <ul class = "item_ul">
         <?php foreach ($heart_item as $value) { ?>
             <?php if ($value['item_status'] === 1) { ?>
-                <td class = "list">
+                <li class = "list">
                     <div class = "flex">
                         <form action = "seasoning_details.php" method = "get">
                             <input class = "history_img" type="image" src= "<?php print $item_img_dir . $value['item_img']; ?>">
@@ -722,7 +724,7 @@ try {
                         <p class = "mg10"><?php print htmlspecialchars ($value['item_comment'], ENT_QUOTES, 'utf-8'); ?></p>
                     </div>
                     <div class = "flex">
-                        <p class = "mg_history">調味料名:<?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?>
+                        <p class = "item_name">調味料名:<?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?>
                         <!--税率8%計算-->
                         <p class = "mg50">小計<?php print htmlspecialchars (number_format(round($value['price'] * 1.08)), ENT_QUOTES, 'utf-8'); ?>円（税込み）</p>
                     </div>
@@ -745,20 +747,18 @@ try {
                             </form>    
                         <?php } ?>
                     </div>
-                </td>
+                </li>
             <?php } ?>
         <?php } ?>
-        </tr>
-    </table>
+    </ul>
     <h3>おすすめレシピ</h3>
-    <table class = "mg100">
-        <tr>
+    <ul class = "recipe_ul">
         <?php foreach ($my_data as $value) { ?>
             <?php if ($value['recipe_status'] === 1) { ?>
                 <?php if ($i >= $num) { ?>
                     <?php break; ?>
                 <?php } else { ?>
-                <td class = "list">
+                <li class = "list">
                     <div class = "flex">
                        <form method = "post">
                             <?php if ($value['user_recipe_id'] === null) { ?>                    
@@ -779,22 +779,20 @@ try {
                         <p class ="mg10"><?php print htmlspecialchars ($value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></p>
                     </div>
                     <p>調味料名:<?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
-                </td>
+                </li>
                 <?php } ?>
                 <?php $i++; ?>
             <?php } ?>
         <?php } ?>
-        </tr>
-    </table>
+    </ul>
     <h3>購入履歴</h3>
-    <table class = "mg100">
-        <tr>
+    <ul class = "item_ul">
         <?php foreach ($h_item as $value) { ?>
             <?php if ($value['item_status'] === 1) { ?>
                 <?php if ($j >= $num) { ?>
                     <?php break; ?>
                 <?php } else { ?>
-                        <td class = "list">
+                        <li class = "list">
                             <div class = "flex">
                                 <form action = "seasoning_details.php" method = "get">
                                     <input class = "history_img" type="image" src= "<?php print $item_img_dir . $value['item_img']; ?>">
@@ -803,7 +801,7 @@ try {
                                 <p class = "mg10"><?php print $value['datetime']; ?></p>
                             </div>
                             <div class = "flex">
-                                <p class = "mg_history">調味料名:<?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?>
+                                <p class = "item_name">調味料名:<?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?>
                                 <!--税率8%計算-->
                                 <p class = "mg50">小計<?php print htmlspecialchars (number_format(round($value['price'] * 1.08)), ENT_QUOTES, 'utf-8'); ?>円（税込み）</p>
                             </div>
@@ -827,13 +825,12 @@ try {
                                     </form>    
                                 <?php } ?>
                             </div>
-                        </td>
+                        </li>
                 <?php } ?>
                 <?php $j++; ?>
             <?php } ?>    
         <?php } ?>
-        </tr>
-    </table>
+    </ul>
    </main>
 </body>
 </html>

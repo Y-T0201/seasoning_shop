@@ -352,7 +352,7 @@ if (isset($_POST['cart_post']) === true) {
     <title><?php print htmlspecialchars ($r_value['recipe_name'], ENT_QUOTES, 'utf-8'); ?></title>
     <?php } ?>
     <style>
-    body, h2, h3, table, .success, .alert, .recipe_flex {
+    body, h2, h3, table, .success, .alert, .recipe_flex, .item_ul {
         margin-left: auto;
         margin-right: auto;
     }
@@ -370,7 +370,7 @@ if (isset($_POST['cart_post']) === true) {
     /*}*/
     
     h2, h3, .mg125, .success, .alert {
-        width: 1026px;
+        width: 1040px;
     }
     
     .recipe_memo {
@@ -384,12 +384,15 @@ if (isset($_POST['cart_post']) === true) {
     }
     
     .list {
+        margin-left: 5px;
+        margin-top: 5px;
         width: 500px;
-        height: 250px;
+        height: 260px;
         border: solid 1px;
         padding: 10px;
         display: inline-block;
-        /*margin: 0px 0px 0px 100px;*/
+        background-color: #ffffff;
+        list-style-type: none; 
     }
     
     h3, .cart_price {
@@ -401,8 +404,8 @@ if (isset($_POST['cart_post']) === true) {
         color: #FFFFFF;
     }
     
-    .mg100 {
-        margin-left: 100px;
+    .item_ul {
+        width: 1100px;
     }
     
     .flex, .cart_flex, .flex_mypage, .recipe_flex, .top_flex, .recipe_heart_flex {
@@ -413,7 +416,28 @@ if (isset($_POST['cart_post']) === true) {
         align-items: baseline;
         border-bottom: solid 1px ;
     }
+
+    .recipe_flex, .cook_font, .point_font, .cook_memo, .point {
+        background-color: #ffffff;
+        border: solid 1px;
+    }
     
+    .cook_font, .point_font, .cook_memo, .point, .center {
+        display: block;
+    }
+
+    .cook_memo, .point {
+        border-bottom: transparent;
+    }
+
+    .point {
+        margin-top: 30px;
+    }
+
+    .center {
+        text-align: center;
+    }
+
     .icon {
         max-height: 50px;
         margin-right: 5px;
@@ -428,7 +452,7 @@ if (isset($_POST['cart_post']) === true) {
         font-size: 16px;
     }
     
-    .f20, .recipe_comment {
+    .cook_font, .point_font, .recipe_comment {
         font-size: 20px;
     }
     
@@ -537,6 +561,19 @@ if (isset($_POST['cart_post']) === true) {
         margin: 0px 10px;
     }
     
+    .recipe_comment {
+        padding: 20px;
+    }
+
+    .cook_font {
+        padding-right: 20px;  
+    }
+
+    .point_font {
+        padding-right: 20px;
+        padding-left: 20px;
+    }
+
     .food {
         border-bottom: solid 1px;
         position: relative;
@@ -557,6 +594,10 @@ if (isset($_POST['cart_post']) === true) {
         margin: 5px;
         position: relative;
         right: 25px;
+    }
+
+    .item_name {
+        font-weight: bold;
     }
     
     .heart, .recipe_heart {
@@ -621,22 +662,22 @@ if (isset($_POST['cart_post']) === true) {
     <?php } ?>
     <p class = "success"><?php print $success; ?></p>
     <br>
-    <?php if ($recipe_details['recipe_status'] === 1) { ?>
+    <?php if ($recipe_details['recipe_status'] === 1 || $user_id === 1) { ?>
         <h2><?php print htmlspecialchars ($recipe_details['recipe_name'], ENT_QUOTES, 'utf-8'); ?></h2>
         <div class = "recipe_flex">
             <img class = "recipe_img" src = "<?php print $recipe_img_dir . $recipe_details['recipe_img']; ?>">
             <p class ="recipe_comment"><?php print htmlspecialchars ($recipe_details['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></p>
         </div>
         <div class = "recipe_heart_flex">
-                    <form method = "post">
-                        <?php if ($recipe_details['user_recipe_id'] === null) { ?>                    
-                            <input type = "image" class = "recipe_heart" src = "heart_ck.png">
-                        <?php } else { ?>
-                            <input type = "image" class = "recipe_heart" src = "heart.png">
-                        <?php } ?>
-                        <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($recipe_details['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
-                        <input type = "hidden" name = "heart" value = "recipe_heart">                    
-                    </form>
+            <form method = "post">
+                <?php if ($recipe_details['user_recipe_id'] === null) { ?>                    
+                    <input type = "image" class = "recipe_heart" src = "heart_ck.png">
+                <?php } else { ?>
+                    <input type = "image" class = "recipe_heart" src = "heart.png">
+                <?php } ?>
+                <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($recipe_details['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
+                <input type = "hidden" name = "heart" value = "recipe_heart">                    
+            </form>
             <p class = "heart_font">お気に入り</p>
         </div>
         <table class = "recipe_memo">
@@ -647,16 +688,16 @@ if (isset($_POST['cart_post']) === true) {
         </table>
         <br>
         <table class = "cook">
-            <tr><th>作り方</th></tr>
-            <tr class = "f20">
+            <tr class = "cook_memo"><th class = "center">作り方</th></tr>
+            <tr class = "cook_font">
                 <td>
                     <ol>
                         <?php print $recipe_details['recipe']; ?>
                     </ol>                        
                 </td>
             </tr>
-            <tr><th>コツ・ポイント</th></tr>
-            <tr class = "f20">
+            <tr class = "point"><th class = "center">コツ・ポイント</th></tr>
+            <tr class = "point_font">
                 <td><br>
                     <?php print htmlspecialchars($recipe_details['point'], ENT_QUOTES, 'utf-8'); ?>
                     <br><br>
@@ -665,11 +706,10 @@ if (isset($_POST['cart_post']) === true) {
         </table>    
     <?php } ?>
     <h3>使用した調味料</h3>
-    <table class = "mg125">
-        <tr>
+    <ul class = "item_ul">
         <?php foreach ($data as $value) { ?>
-            <?php if ($value['item_status'] === 1 || $user_id === "admin") { ?>
-                <td class = "list">
+            <?php if ($value['item_status'] === 1 || $user_id === 1) { ?>
+                <li class = "list">
                     <div class = "flex">
                         <form action = "seasoning_details.php" method = "get">
                             <input class = "item_img" type="image" src= "<?php print $item_img_dir . $value['item_img']; ?>">
@@ -678,7 +718,7 @@ if (isset($_POST['cart_post']) === true) {
                         <p class = "mg10"><?php print htmlspecialchars ($value['item_comment'], ENT_QUOTES, 'utf-8'); ?></p>
                     </div>
                     <div class = "flex">
-                        <p>調味料名:<?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
+                        <p class = "item_name">調味料名:<?php print htmlspecialchars ($value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
                         <!--税率8%計算-->
                         <p class = "mg50">小計<?php print htmlspecialchars (number_format(round($value['price'] * 1.08)), ENT_QUOTES, 'utf-8'); ?>円（税込み）</p>
                     </div>
@@ -701,11 +741,10 @@ if (isset($_POST['cart_post']) === true) {
                             </form>                          
                         <?php } ?>
                     </div>
-                </td>
+                </li>
             <?php } ?>
         <?php } ?>
-        </tr>
-    </table>
+    </ul>
    </main>
 </body>
 </html>
