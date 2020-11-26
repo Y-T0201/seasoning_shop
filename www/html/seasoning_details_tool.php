@@ -7,6 +7,7 @@ $charset = 'utf8';
 
 $img_dir = './item_img/'; // アップロードした画像ファイルの保存ディレクトリ
 $err_msg = array();
+$success = array();
 $data = array();
 
 // MySQL用のDSN文字列
@@ -262,7 +263,7 @@ try {
                 unlink($img_dir . $_POST['item_img']);
             } 
 
-            echo '商品情報を変更しました。';
+            $success[] = '商品情報を変更しました。';
 
             // 商品画面にリダイレクト
 
@@ -380,6 +381,14 @@ try {
             border: 0px none;
         }
 
+        .alert {
+            color: red;
+        }
+
+        .success {
+            color: blue;
+        }
+
         .flex {
             display: flex;
         }
@@ -405,9 +414,6 @@ try {
         <input class = "btm_logout" type = "submit" name = "btm_logout" value = "ログアウト">
     </form>
 </div>
-<?php foreach ($err_msg as $value) { ?>
-    <p><?php print $value; ?></p>
-<?php } ?>
 <div class = "link">
     <a class = "margin50" href = "seasoning_tool.php">調味料管理ページ</a>
     <a class = "margin50" href = "recipe_tool.php">レシピ管理ページ</a>
@@ -416,6 +422,12 @@ try {
     <a class = "margin50" href = "seasoning_list.php">ECサイト</a>
 </div>
 <h2>商品情報の変更</h2>
+<?php foreach ($err_msg as $value) { ?>
+    <p class = "alert"><?php print htmlspecialchars($value, ENT_QUOTES, 'utf-8'); ?></p>
+<?php } ?>
+<?php foreach ($success as $value) { ?>
+    <p class = "success"><?php print htmlspecialchars($value, ENT_QUOTES, 'utf-8'); ?></p>
+<?php } ?>
 <form class = "item_change" method = "post" enctype = "multipart/form-data">
     <p>商品名(12文字以内):</p>
     <input type = "text" name = "update_item_name" value = "<?php print htmlspecialchars($item_details['item_name'], ENT_QUOTES, 'utf-8'); ?>">

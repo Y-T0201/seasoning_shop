@@ -7,6 +7,7 @@ $charset = 'utf8';
 
 $img_dir = './item_img/'; // アップロードした画像ファイルの保存ディレクトリ
 $err_msg = array();
+$success = array();
 $data = array();
 
 // MySQL用のDSN文字列
@@ -163,7 +164,7 @@ try {
                 $stmt->execute();
                 // コミット処理
                 $dbh->commit();
-                echo 'データが登録できました';  
+                $success[] = 'データが登録できました';  
 
             } catch (PDOExeption $e) {
                 // ロールバック処理
@@ -210,7 +211,7 @@ try {
             // SQLを実行
             $stmt->execute();
             
-            echo 'ステータスの変更が成功しました';
+            $success[] = 'ステータスの変更が成功しました';
         }
     }
 
@@ -264,7 +265,7 @@ try {
                 if(file_exists($img)) {
                     unlink($img);
                 }    
-                echo '商品情報を削除しました';
+                $success[] =  '商品情報を削除しました';
 
             } catch (PDOExeption $e) {
                 // ロールバック処理
@@ -352,6 +353,14 @@ try {
             width: 100px;
         }
         
+        .alert {
+            color: red;
+        }
+
+        .success {
+            color: blue;
+        }
+
         .flex {
             display: flex;
         }
@@ -373,15 +382,18 @@ try {
         <input class = "btm_logout" type = "submit" name = "btm_logout" value = "ログアウト">
     </form>
 </div>
-<?php foreach ($err_msg as $value) { ?>
-    <p><?php print $value; ?></p>
-<?php } ?>
 <a class = "margin50" href = "seasoning_tool.php">調味料管理ページ</a>
 <a class = "margin50" href = "recipe_tool.php">レシピ管理ページ</a>
 <a class = "margin50" href = "users_tool.php">ユーザー管理ページ</a>
 <a class = "margin50" href = "history_tool.php">購入履歴管理ページ</a>
 <a class = "margin50" href = "seasoning_list.php">ECサイト</a>
 <h2>商品の登録</h2>
+<?php foreach ($err_msg as $value) { ?>
+    <p class = "alert"><?php print htmlspecialchars($value, ENT_QUOTES, 'utf-8'); ?></p>
+<?php } ?>
+<?php foreach ($success as $value) { ?>
+    <p class = "success"><?php print htmlspecialchars($value, ENT_QUOTES, 'utf-8'); ?></p>
+<?php } ?>
 <form method = "post" enctype = "multipart/form-data">
     <p>商品名(12文字以内):<input type = "text" name = "item_name"></p>
     <p>値段(税抜き):<input type = "text" name = "price"></p>
