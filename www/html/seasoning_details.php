@@ -600,15 +600,23 @@ try {
         margin-left:5px;
     }
     
-    .recipe_details {
+    .a_recipe_details {
         position: relative;
         top: 15px;
-        left: 395px;
+        left: 370px;
+        display: block;
+        text-decoration: none;
+        border: solid 1px;
+        width: 120px;
+        height: 25px;
+        text-align: center;
+        color: #FFFFFF;
+        background-color: #76A44A;
     }
 
     .recipe_item_name {
         position: relative;
-        right: 90px;
+        right: 115px;
     }
     
     </style>
@@ -738,17 +746,13 @@ try {
                         <p class = "recipe_name"><?php print htmlspecialchars ($r_value['recipe_name'], ENT_QUOTES, 'utf-8'); ?></p>
                     </div>
                     <div class = "flex">
-                        <form action = "recipe_details.php" method="get">
-                            <input class = "recipe_img" type="image" src= "<?php print $recipe_img_dir . $r_value['recipe_img']; ?>">
-                            <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($r_value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
-                        </form>
+                        <a href="recipe_details.php?recipe_id=<?php print htmlspecialchars($r_value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
+                            <img class = "recipe_img" src="<?php print $recipe_img_dir . $r_value['recipe_img']; ?>">
+                        </a>
                         <p class ="mg10"><?php print htmlspecialchars ($r_value['recipe_comment'], ENT_QUOTES, 'utf-8'); ?></p>
                     </div>
                     <div class = "flex">
-                        <form action = "recipe_details.php" method = "get">
-                            <input class = "recipe_details" type = "submit" name = "details" value = "▶詳しく見る">
-                            <input type = "hidden" name = "recipe_id" value = "<?php print htmlspecialchars($r_value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">
-                        </form>
+                        <a class = "a_recipe_details" href="recipe_details.php?recipe_id=<?php print htmlspecialchars($r_value['recipe_id'], ENT_QUOTES, 'utf-8'); ?>">▶詳しく見る</a>
                         <p class = "recipe_item_name">調味料名:<?php print htmlspecialchars ($r_value['item_name'], ENT_QUOTES, 'utf-8'); ?></p>
                     </div>
                 </li>
