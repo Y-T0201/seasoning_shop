@@ -393,6 +393,18 @@ try {
         margin-left: 250px;
     }
 
+    .a_item_details {
+        margin-left: 220px;
+        display: block;
+        text-decoration: none;
+        border: solid 1px;
+        width: 120px;
+        height: 25px;
+        text-align: center;
+        color: #FFFFFF;
+        background-color: #76A44A;
+    }
+
     .cart-submit, .sold_out {
         margin-left: 20px;
     }
@@ -506,11 +518,13 @@ try {
             <?php if ($value['item_status'] === 1) { ?>
                 <li class = "list">
                     <div class = "flex">
-                        <!--getフォームでxyが送信される-->
-                        <form action = "seasoning_details.php" method = "get">
+                        <!-- <form action = "seasoning_details.php" method = "get">
                             <input class = "item_img" type="image" src= "<?php print $img_dir . $value['item_img']; ?>">
                             <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
-                        </form>
+                        </form> -->
+                        <a href="seasoning_details.php?item_id=<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
+                            <img class = "item_img" src="<?php print $img_dir . $value['item_img']; ?>">
+                        </a>
                         <p class = "mg10"><?php print htmlspecialchars ($value['item_comment'], ENT_QUOTES, 'utf-8'); ?></p>
                     </div>
                     <div class = "flex">
@@ -527,11 +541,12 @@ try {
                             <?php } ?>
                             <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
                             <input type = "hidden" name = "heart" value = "item_heart">                    
-                        </form> 
-                        <form action = "seasoning_details.php" method = "get">
+                        </form>
+                        <a class = "a_item_details" href="seasoning_details.php?item_id=<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8');?>">▶詳しく見る</a> 
+                        <!-- <form action = "seasoning_details.php" method = "get">
                             <input class = "item_details" type = "submit" name = "details" value = "▶詳しく見る">
                             <input type = "hidden" name = "item_id" value = "<?php print htmlspecialchars($value['item_id'], ENT_QUOTES, 'utf-8'); ?>">
-                        </form>
+                        </form> -->
                         <?php if ($value['stock'] === 0) { ?>
                             <P class = "sold_out">売り切れ</P>
                         <?php } else if ($value['stock'] > 0) { ?>
